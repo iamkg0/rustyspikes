@@ -44,7 +44,7 @@ class Izhikevich:
         else:
             return 0
         
-    def consume_current(self, current):
+    def apply_current(self, current):
         self.I = current
 
     def propagate(self):
