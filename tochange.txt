@@ -1,0 +1,1 @@
+neurons - transmitter impact is better to be on input, not output. or make different receptors/transmitters
