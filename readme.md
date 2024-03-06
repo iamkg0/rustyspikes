@@ -1,0 +1,1 @@
+someday this will be a framework for spiking neural networks, made with rust programming language. Yet, it is not
