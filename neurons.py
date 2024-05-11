@@ -52,3 +52,21 @@ class Izhikevich:
     
     def spike_trace(self):
         self.impulse -= 0
+
+
+
+
+
+class Poisson_neuron:
+    def __init__(self, **kwargs):
+        self.resolution = kwargs.get('resolution', .1)
+        self.excitatory = kwargs.get('excitatory', True)
+        if self.excitatory:
+            self.transmitter_impact = 1
+        else:
+            self.transmitter_impact = -1
+        self.noise = kwargs.get('noise', 0)
+        self.ap_threshold = kwargs.get('ap_threshold', 30)
+        self.tau = kwargs.get('tau', 30)
+        self.syn_out = kwargs.get('syn_out', True)
+        self.I = kwargs.get('I', 0)
