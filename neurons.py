@@ -1,17 +1,20 @@
-import numpy as np
+import random
 
 class Izhikevich:
     def __init__(self, **kwargs):
         self.resolution = kwargs.get('resolution', .1)
-        self.excitatory = kwargs.get('excitatory', True)
-        if self.excitatory:
-            self.transmitter_impact = 1
-        else:
-            self.transmitter_impact = -1
         self.noise = kwargs.get('noise', 0)
         self.ap_threshold = kwargs.get('ap_threshold', 30)
         self.tau = kwargs.get('tau', 30)
         self.syn_out = kwargs.get('syn_out', True)
+        self.synaptic_limit = kwargs.get('synaptic_limit', None)
+        self.I = kwargs.get('I', 0)
+        self.spiked = 0
+        self.impulse = 0
+        if self.synaptic_limit:
+            self.spike_trace_choice = self.spike_trace_limited
+        else:
+            self.spike_trace_choice = self.spike_trace_unlimited
         preset_list = ['RS', 'IB', 'CH', 'FS', 'TC', 'RZ', 'LTS', None]
         preset = kwargs.get('preset', None)
         param_list = [[0.02, 0.2, -65, 8],
@@ -30,28 +33,35 @@ class Izhikevich:
         self.d = param_list[idx][3]
         self.v = self.c
         self.u = self.b * self.v
-        self.spiked = 0
-        self.impulse = 0
-        self.I = kwargs.get('I', 0)
+        
+        
 
     def dynamics(self):
-        self.v += self.resolution*(0.04*self.v**2 + 5*self.v + 140 - self.u + self.I) + np.random.uniform(-self.noise, self.noise, size=1)[0]
+        self.v += self.resolution*(0.04*self.v**2 + 5*self.v + 140 - self.u + self.I) + random.uniform(-self.noise, self.noise)
         self.u += self.resolution*(self.a*(self.b * self.v - self.u))
         if self.v >= self.ap_threshold:
             self.v = self.c
             self.u += self.d
-            return 1
+            self.spike_trace_choice()
         else:
-            return 0
+            self.spike_decrease()
+        return self.impulse
         
     def apply_current(self, current):
         self.I = current
-
-    def propagate(self):
-        return self.transmitter_impact
     
-    def spike_trace(self):
-        self.impulse -= 0
+    '''
+    Synaptic output related functions:
+    '''
+    def spike_decrease(self):
+        self.impulse -= self.impulse / self.tau
+        return self.impulse
+    
+    def spike_trace_limited(self):
+        self.impulse = self.synaptic_limit
+    
+    def spike_trace_unlimited(self):
+        self.impulse += 1
 
 
 
