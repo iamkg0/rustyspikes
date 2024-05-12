@@ -1,20 +1,42 @@
 import random
+import numpy as np
 
-class Izhikevich:
+
+class Neuron:
     def __init__(self, **kwargs):
         self.resolution = kwargs.get('resolution', .1)
         self.noise = kwargs.get('noise', 0)
         self.ap_threshold = kwargs.get('ap_threshold', 30)
         self.tau = kwargs.get('tau', 30)
         self.syn_out = kwargs.get('syn_out', True)
-        self.synaptic_limit = kwargs.get('synaptic_limit', None)
         self.I = kwargs.get('I', 0)
-        self.spiked = 0
+        self.spiked = False
         self.impulse = 0
+        self.synaptic_limit = kwargs.get('synaptic_limit', None)
         if self.synaptic_limit:
             self.spike_trace_choice = self.spike_trace_limited
         else:
             self.spike_trace_choice = self.spike_trace_unlimited
+        self.id = kwargs.get('id', None)
+
+    '''
+    Synaptic output related functions:
+    '''
+    def spike_decrease(self):
+        self.impulse -= self.impulse / self.tau
+        return self.impulse
+    
+    def spike_trace_limited(self):
+        self.impulse = self.synaptic_limit
+    
+    def spike_trace_unlimited(self):
+        self.impulse += 1
+
+
+
+class Izhikevich(Neuron):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
         preset_list = ['RS', 'IB', 'CH', 'FS', 'TC', 'RZ', 'LTS', None]
         preset = kwargs.get('preset', None)
         param_list = [[0.02, 0.2, -65, 8],
@@ -50,33 +72,20 @@ class Izhikevich:
     def apply_current(self, current):
         self.I = current
     
-    '''
-    Synaptic output related functions:
-    '''
-    def spike_decrease(self):
-        self.impulse -= self.impulse / self.tau
-        return self.impulse
-    
-    def spike_trace_limited(self):
-        self.impulse = self.synaptic_limit
-    
-    def spike_trace_unlimited(self):
-        self.impulse += 1
 
 
 
 
 
-class Poisson_neuron:
+class Probability_neuron(Neuron):
     def __init__(self, **kwargs):
-        self.resolution = kwargs.get('resolution', .1)
-        self.excitatory = kwargs.get('excitatory', True)
-        if self.excitatory:
-            self.transmitter_impact = 1
+        super().__init__(**kwargs)
+
+
+    def dynamics(self):
+        tick = random.choices([0, 1], [1-self.I, self.I])
+        if tick[0] == 1:
+            self.spike_trace_choice()
         else:
-            self.transmitter_impact = -1
-        self.noise = kwargs.get('noise', 0)
-        self.ap_threshold = kwargs.get('ap_threshold', 30)
-        self.tau = kwargs.get('tau', 30)
-        self.syn_out = kwargs.get('syn_out', True)
-        self.I = kwargs.get('I', 0)
+            self.spike_decrease()
+        return self.impulse
