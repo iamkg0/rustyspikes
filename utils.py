@@ -4,7 +4,12 @@ import matplotlib.pyplot as plt
 '''
 Single synapse simulation:
 '''
-def simulate_synapse(pre_neu, post_neu, synapse, time, res=.1):
+def simulate_synapse(pre_neu, post_neu, synapse, time, res=.1, rule=None):
+    rules = {None: None,
+             'pair_stdp': synapse.pair_stdp,
+             't_stdp': synapse.t_stdp,
+             'bcm': synapse.bcm}
+    use_rule = rules[rule]
     t = np.arange(int(time / res)) * res
     pre_traces = []
     post_traces = []
@@ -13,6 +18,7 @@ def simulate_synapse(pre_neu, post_neu, synapse, time, res=.1):
     pre_v = []
     post_v = []
     w = []
+    slow_traces = []
     for i in range(int(time / res)):
         pre_traces.append(pre_neu.dynamics())
         post_traces.append(post_neu.dynamics())
@@ -21,27 +27,38 @@ def simulate_synapse(pre_neu, post_neu, synapse, time, res=.1):
         pre_v.append(pre_neu.get_voltage_dynamics())
         post_v.append(post_neu.get_voltage_dynamics())
         synapse.forward()
-        synapse.pair_stdp()
+        if use_rule:
+            use_rule()
+            if rule == 't_stdp':
+                slow_traces.append(synapse.get_slow_variable())
+        #synapse.pair_stdp()
         w.append(synapse.get_weight())
-    traces = np.stack((np.array(pre_traces), np.array(post_traces)), axis=0)
+    traces = np.stack((np.array(pre_traces), np.array(post_traces), np.array(slow_traces)), axis=0)
     Is = np.stack((pre_Is, post_Is), axis=0)
     vs = np.stack((pre_v, post_v), axis=0)
     w = np.array(w)
     return vs, Is, traces, w, t
 
-def show_stats_synapse(vs, Is, spikes, w, t, fwidth=15, fheight=9):
+def show_stats_synapse(vs, Is, spikes, w, t, fwidth=16, fheight=9):
     figure, axis = plt.subplots(4, 1)
     figure.set_figwidth(fwidth)
     figure.set_figheight(fheight)
+    colors = ['cyan', 'orange', 'red']
+    labels = ['pre', 'post', 'post_slow']
     for i in range(len(vs)):
         voltage = axis[0]
         cur = axis[1]
         spks = axis[2]
-        voltage.plot(t, vs[i])
-        cur.plot(t, Is[i])
-        spks.plot(t, spikes[i])
+        voltage.plot(t, vs[i], color=colors[i], label=labels[i])
+        cur.plot(t, Is[i], color=colors[i], label=labels[i])
+        spks.plot(t, spikes[i], color=colors[i], label=labels[i])
+    if len(vs) < len(spikes):
+        spks.plot(t, spikes[i+1], color=colors[i+1], label=labels[i+1])
+    voltage.legend(loc='upper right')
+    cur.legend(loc='upper right')
+    spks.legend(loc='upper right')
     w_ax = axis[3]
-    w_ax.plot(t, w)
+    w_ax.plot(t, w, color=colors[0])
     voltage.set_title('Voltage')
     cur.set_title('Input current')
     spks.set_title('Spikes')
