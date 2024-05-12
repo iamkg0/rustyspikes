@@ -1,6 +1,56 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
+'''
+Single synapse simulation:
+'''
+def simulate_synapse(pre_neu, post_neu, synapse, time, res=.1):
+    t = np.arange(int(time / res)) * res
+    pre_traces = []
+    post_traces = []
+    pre_Is = []
+    post_Is = []
+    pre_v = []
+    post_v = []
+    w = []
+    for i in range(int(time / res)):
+        pre_traces.append(pre_neu.dynamics())
+        post_traces.append(post_neu.dynamics())
+        pre_Is.append(pre_neu.get_input_current())
+        post_Is.append(post_neu.get_input_current())
+        pre_v.append(pre_neu.get_voltage_dynamics())
+        post_v.append(post_neu.get_voltage_dynamics())
+        synapse.forward()
+        synapse.pair_stdp()
+        w.append(synapse.get_weight())
+    traces = np.stack((np.array(pre_traces), np.array(post_traces)), axis=0)
+    Is = np.stack((pre_Is, post_Is), axis=0)
+    vs = np.stack((pre_v, post_v), axis=0)
+    w = np.array(w)
+    return vs, Is, traces, w, t
+
+def show_stats_synapse(vs, Is, spikes, w, t, fwidth=15, fheight=9):
+    figure, axis = plt.subplots(4, 1)
+    figure.set_figwidth(fwidth)
+    figure.set_figheight(fheight)
+    for i in range(len(vs)):
+        voltage = axis[0]
+        cur = axis[1]
+        spks = axis[2]
+        voltage.plot(t, vs[i])
+        cur.plot(t, Is[i])
+        spks.plot(t, spikes[i])
+    w_ax = axis[3]
+    w_ax.plot(t, w)
+    voltage.set_title('Voltage')
+    cur.set_title('Input current')
+    spks.set_title('Spikes')
+    w_ax.set_title('Weight changes')
+
+
+'''
+Forgot what this is:
+'''
 def dev_test(neuron, time, timings, currents, default_current=0):
     t = np.arange(int(time / neuron.resolution)) * neuron.resolution
     vs = []
@@ -18,7 +68,6 @@ def dev_test(neuron, time, timings, currents, default_current=0):
         vs.append(neuron.v)
         
     return vs, Is, spikes,t 
-
 
 
 def show_stats(vs, Is, spikes, t, fwidth=15, fheight=9):

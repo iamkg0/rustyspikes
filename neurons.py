@@ -24,14 +24,40 @@ class Neuron:
     '''
     def spike_decrease(self):
         self.impulse -= self.impulse / self.tau
+        self.spiked = False
         return self.impulse
     
     def spike_trace_limited(self):
         self.impulse = self.synaptic_limit
+        self.spiked = True
     
     def spike_trace_unlimited(self):
         self.impulse += 1
+        self.spiked = True
+    
+    '''
+    Update input current:
+    '''
+    def apply_current(self, current):
+        self.I = current
 
+    def accumulate_current(self, current):
+        self.I += current
+
+    '''
+    Get info:
+    '''
+    def get_output_current(self):
+        return self.impulse
+    
+    def get_spike_status(self):
+        return self.spiked
+    
+    def get_voltage_dynamics(self):
+        return self.v
+    
+    def get_input_current(self):
+        return self.I
 
 
 class Izhikevich(Neuron):
@@ -56,8 +82,6 @@ class Izhikevich(Neuron):
         self.v = self.c
         self.u = self.b * self.v
         
-        
-
     def dynamics(self):
         self.v += self.resolution*(0.04*self.v**2 + 5*self.v + 140 - self.u + self.I) + random.uniform(-self.noise, self.noise)
         self.u += self.resolution*(self.a*(self.b * self.v - self.u))
@@ -68,23 +92,18 @@ class Izhikevich(Neuron):
         else:
             self.spike_decrease()
         return self.impulse
-        
-    def apply_current(self, current):
-        self.I = current
-    
-
-
 
 
 
 class Probability_neuron(Neuron):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.v = 0
 
 
     def dynamics(self):
-        tick = random.choices([0, 1], [1-self.I, self.I])
-        if tick[0] == 1:
+        self.v = random.choices([0, 1], [1-self.I, self.I])[0]
+        if self.v == 1:
             self.spike_trace_choice()
         else:
             self.spike_decrease()
