@@ -27,13 +27,17 @@ def simulate_synapse(pre_neu, post_neu, synapse, time, res=.1, rule=None):
         pre_v.append(pre_neu.get_voltage_dynamics())
         post_v.append(post_neu.get_voltage_dynamics())
         synapse.forward()
+        post_neu.apply_cum_current()
         if use_rule:
             use_rule()
             if rule == 't_stdp':
                 slow_traces.append(synapse.get_slow_variable())
-        #synapse.pair_stdp()
         w.append(synapse.get_weight())
-    traces = np.stack((np.array(pre_traces), np.array(post_traces), np.array(slow_traces)), axis=0)
+    if rule == 't_stdp':
+        traces_bundle = np.array(pre_traces), np.array(post_traces), np.array(slow_traces)
+    else:
+        traces_bundle = np.array(pre_traces), np.array(post_traces)
+    traces = np.stack((traces_bundle), axis=0)
     Is = np.stack((pre_Is, post_Is), axis=0)
     vs = np.stack((pre_v, post_v), axis=0)
     w = np.array(w)

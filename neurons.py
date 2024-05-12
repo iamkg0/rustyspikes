@@ -17,6 +17,7 @@ class Neuron:
             self.spike_trace_choice = self.spike_trace_limited
         else:
             self.spike_trace_choice = self.spike_trace_unlimited
+        self.cum_current = 0
         self.id = kwargs.get('id', None)
 
     '''
@@ -42,21 +43,37 @@ class Neuron:
         self.I = current
 
     def accumulate_current(self, current):
-        self.I += current
+        self.cum_current += current
+
+    def apply_cum_current(self):
+        self.I = self.cum_current
+        self.cum_current = 0
 
     '''
     Get info:
     '''
     def get_output_current(self):
+        '''
+        Returns current value
+        '''
         return self.impulse
     
     def get_spike_status(self):
+        '''
+        Returns the status of neuron - if it has spiked at this iteration or not
+        '''
         return self.spiked
     
     def get_voltage_dynamics(self):
+        '''
+        Returns voltage of a neuron
+        '''
         return self.v
     
     def get_input_current(self):
+        '''
+        Returns the amount of current this neuron recieves
+        '''
         return self.I
 
 

@@ -16,7 +16,7 @@ class Synapse:
 
 
     def forward(self):
-        self.postsynaptic.apply_current(self.presynaptic.get_output_current() * self.w)
+        self.postsynaptic.accumulate_current(self.presynaptic.get_output_current() * self.w)
 
     def pair_stdp(self, lr=.01, asymmetry=5):
         dw = 0
