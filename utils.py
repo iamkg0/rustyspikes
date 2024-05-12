@@ -1,6 +1,16 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
+''' SHORTCUTS '''
+def short_single_synapse(pre_neu, post_neu, synapse, time, res=.1, rule=None, fwidth=16, fheight=9):
+    '''
+    Simulates a single synapse between two neurons and shows statistics
+    '''
+    vs, Is, spikes, w, t = simulate_synapse(pre_neu, post_neu, synapse, time, res, rule)
+    show_stats_synapse(vs, Is, spikes, w, t, fwidth, fheight)
+
+
+
 '''
 Single synapse simulation:
 '''
