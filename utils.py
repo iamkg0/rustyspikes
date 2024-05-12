@@ -63,16 +63,16 @@ def show_stats_synapse(vs, Is, spikes, w, t, fwidth=16, fheight=9):
         voltage = axis[0]
         cur = axis[1]
         spks = axis[2]
-        voltage.plot(t, vs[i], color=colors[i], label=labels[i])
-        cur.plot(t, Is[i], color=colors[i], label=labels[i])
-        spks.plot(t, spikes[i], color=colors[i], label=labels[i])
+        voltage.plot(t, vs[i], color=colors[i], label=labels[i], linewidth=1)
+        cur.plot(t, Is[i], color=colors[i], label=labels[i], linewidth=1)
+        spks.plot(t, spikes[i], color=colors[i], label=labels[i], linewidth=1)
     if len(vs) < len(spikes):
-        spks.plot(t, spikes[i+1], color=colors[i+1], label=labels[i+1])
+        spks.plot(t, spikes[i+1], color=colors[i+1], label=labels[i+1], linewidth=1)
     voltage.legend(loc='upper right')
     cur.legend(loc='upper right')
     spks.legend(loc='upper right')
     w_ax = axis[3]
-    w_ax.plot(t, w, color=colors[0])
+    w_ax.plot(t, w, color=colors[0], linewidth=1)
     voltage.set_title('Voltage')
     cur.set_title('Input current')
     spks.set_title('Spikes')

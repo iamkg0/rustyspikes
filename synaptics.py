@@ -21,9 +21,9 @@ class Synapse:
     def pair_stdp(self, lr=.01, asymmetry=5):
         dw = 0
         if self.presynaptic.get_spike_status():
-            self.w -= self.postsynaptic.get_output_current() * (1 - self.w) * lr
+            dw -= self.postsynaptic.get_output_current() * (1 - self.w) * lr
         if self.postsynaptic.get_spike_status():
-            self.w += self.presynaptic.get_output_current() * self.w * lr * asymmetry
+            dw += self.presynaptic.get_output_current() * self.w * lr * asymmetry
         self.w += dw
         if self.w > 1.:
             self.w = 1.
