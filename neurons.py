@@ -96,7 +96,7 @@ class Izhikevich(Neuron):
         self.b = param_list[idx][1]
         self.c = param_list[idx][2]
         self.d = param_list[idx][3]
-        self.v = self.c
+        self.v = -80
         self.u = self.b * self.v
         
     def dynamics(self):
@@ -125,3 +125,40 @@ class Probability_neuron(Neuron):
         else:
             self.spike_decrease()
         return self.impulse
+    
+
+
+class Spikes_at_will(Neuron):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.awaiting_time = kwargs.get('awaiting_time', 10)
+        self.awaiting_timer = self.awaiting_time
+        self.awaiting_time_passed = False
+
+        self.refresh_time = kwargs.get('refresh_time', 300)
+        self.refresh_cooldown = self.refresh_time
+        self.spike_occured = False
+
+        self.v = 0
+    
+    def dynamics(self):
+        self.refresh_cooldown -= self.resolution
+        self.v = 0
+        if not self.spike_occured:
+            self.awaiting_timer -= self.resolution
+            if self.awaiting_timer <= 0:
+                self.spike_trace_choice()
+                self.v = 1
+                self.spike_occured = True
+            else:
+                self.spike_decrease()
+        else:
+            self.spike_decrease()
+        if self.refresh_cooldown <= 0:
+            self.refresh()
+        return self.impulse
+    
+    def refresh(self):
+        self.awaiting_timer = self.awaiting_time
+        self.refresh_cooldown = self.refresh_time
+        self.spike_occured = False

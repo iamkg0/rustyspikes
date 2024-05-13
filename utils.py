@@ -18,6 +18,7 @@ def simulate_synapse(pre_neu, post_neu, synapse, time, res=.1, rule=None):
     rules = {None: None,
              'pair_stdp': synapse.pair_stdp,
              't_stdp': synapse.t_stdp,
+             't_stdp_forgetting': synapse.t_stdp_forgetting,
              'bcm': synapse.bcm}
     use_rule = rules[rule]
     t = np.arange(int(time / res)) * res
@@ -40,10 +41,10 @@ def simulate_synapse(pre_neu, post_neu, synapse, time, res=.1, rule=None):
         post_neu.apply_cum_current()
         if use_rule:
             use_rule()
-            if rule == 't_stdp':
+            if rule == 't_stdp' or rule == 't_stdp_forgetting':
                 slow_traces.append(synapse.get_slow_variable())
         w.append(synapse.get_weight())
-    if rule == 't_stdp':
+    if rule == 't_stdp' or rule == 't_stdp_forgetting':
         traces_bundle = np.array(pre_traces), np.array(post_traces), np.array(slow_traces)
     else:
         traces_bundle = np.array(pre_traces), np.array(post_traces)
@@ -52,6 +53,8 @@ def simulate_synapse(pre_neu, post_neu, synapse, time, res=.1, rule=None):
     vs = np.stack((pre_v, post_v), axis=0)
     w = np.array(w)
     return vs, Is, traces, w, t
+
+
 
 def show_stats_synapse(vs, Is, spikes, w, t, fwidth=16, fheight=9):
     figure, axis = plt.subplots(4, 1)

@@ -6,8 +6,9 @@ class Synapse:
         self.postsynaptic = postsynaptic
         self.scale = kwargs.get('scale', 1)
         self.slow_var = 0
-        self.slow_tau = kwargs.get('slow_tau', 50)
-        self.w = .2
+        self.slow_tau = kwargs.get('slow_tau', 100)
+        self.forget_tau = kwargs.get('forget_tau', 10000)
+        self.w = .5
         self.slow_variable_limit = kwargs.get('slow_variable_limit', None)
         if self.slow_variable_limit:
             self.slow_var_choice = self.slow_var_limited
@@ -16,17 +17,22 @@ class Synapse:
 
 
     def forward(self):
-        self.postsynaptic.accumulate_current(self.presynaptic.get_output_current() * self.w)
+        self.postsynaptic.accumulate_current(self.presynaptic.get_output_current() * self.w * self.scale)
 
+    def forgetting(self):
+        dw = -(self.w * self.postsynaptic.get_output_current()) / self.forget_tau
+        self.w += dw
+
+    '''
+    Pair-based STDP rule:
+    '''
     def pair_stdp(self, lr=.01, asymmetry=5):
         dw = 0
         if self.presynaptic.get_spike_status():
-            dw -= self.postsynaptic.get_output_current() * (1 - self.w) * lr
+            dw -= self.postsynaptic.get_output_current() * self.w * lr * asymmetry
         if self.postsynaptic.get_spike_status():
-            dw += self.presynaptic.get_output_current() * self.w * lr * asymmetry
+            dw += self.presynaptic.get_output_current() * (1 - self.w) * lr
         self.w += dw
-        if self.w > 1.:
-            self.w = 1.
 
     '''
     Triplet-STDP related functions:
@@ -43,14 +49,32 @@ class Synapse:
     def slow_var_unlimited(self):
         self.slow_var += 1
 
-    def t_stdp(self):
+    def t_stdp(self, lr=.01, asymmetry=1):
         self.compute_slow_variable()
+        dw = 0
+        if self.presynaptic.get_spike_status():
+            dw -= self.postsynaptic.get_output_current() * self.w * lr * asymmetry
+        if self.postsynaptic.get_spike_status():
+            dw += self.presynaptic.get_output_current() * self.slow_var * (1 - self.w) * lr
+        self.w += dw
+
+    def t_stdp_forgetting(self, lr=.01, asymmetry=1):
+        self.compute_slow_variable()
+        dw = 0
+        if self.presynaptic.get_spike_status():
+            dw -= self.postsynaptic.get_output_current() * self.w * lr * asymmetry
+        if self.postsynaptic.get_spike_status():
+            dw += self.presynaptic.get_output_current() * self.slow_var * (1 - self.w) * lr
+            self.forgetting()
+        self.w += dw
+        
+
 
     '''
     BCM rule related functions:
     '''
     def bcm(self):
-        pass
+        return 0
 
     '''
     Get info:
@@ -60,3 +84,9 @@ class Synapse:
     
     def get_slow_variable(self):
         return self.slow_var
+    
+    '''
+    Manual changes:
+    '''
+    def set_weight_manually(self, weight):
+        self.w = weight
