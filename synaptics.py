@@ -65,7 +65,7 @@ class Synapse:
             dw -= self.postsynaptic.get_output_current() * self.w * lr * asymmetry
         if self.postsynaptic.get_spike_status():
             dw += self.presynaptic.get_output_current() * self.slow_var * (1 - self.w) * lr
-            self.forgetting()
+        self.forgetting()
         self.w += dw
         
 

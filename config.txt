@@ -1,0 +1,40 @@
+{
+    "Neurons": {
+        "Input_neurons": {
+            "Type": "Spikes_at_will",
+            "Number": 2,
+            "I": [3, 10],
+            "Preset": "None"
+        },
+        "Hidden_neurons": {
+            "Type": "Izhikevich",
+            "Number": 4,
+            "I": 0,
+            "Preset": "RS"
+        },
+        "Output_neurons": {
+            "Type": "Izhikevich",
+            "Number": 2,
+            "I": 0,
+            "Preset": "RS"
+        }
+    },
+    "Synapses": {
+        "Input_layer": {
+            "Type": "FC",
+            "Per_neuron": 1,
+            "Delayed": "False"
+        },
+        "Hidden_layer": {
+            "Type": "Random",
+            "Per_neuron": 3,
+            "Delayed": "False"
+        },
+        "Output_layer": {
+            "Type": "Random",
+            "Per_neuron": 2,
+            "Delayed": "False"
+        }
+    }
+
+}

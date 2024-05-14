@@ -6,7 +6,6 @@ class Neuron:
     def __init__(self, **kwargs):
         self.resolution = kwargs.get('resolution', .1)
         self.noise = kwargs.get('noise', 0)
-        self.ap_threshold = kwargs.get('ap_threshold', 30)
         self.tau = kwargs.get('tau', 30)
         self.syn_out = kwargs.get('syn_out', True)
         self.I = kwargs.get('I', 0)
@@ -19,6 +18,7 @@ class Neuron:
             self.spike_trace_choice = self.spike_trace_unlimited
         self.cum_current = 0
         self.id = kwargs.get('id', None)
+        self.preset = kwargs.get('preset', None)
 
     '''
     Synaptic output related functions:
@@ -82,6 +82,7 @@ class Izhikevich(Neuron):
         super().__init__(**kwargs)
         preset_list = ['RS', 'IB', 'CH', 'FS', 'TC', 'RZ', 'LTS', None]
         preset = kwargs.get('preset', None)
+        self.ap_threshold = kwargs.get('ap_threshold', 30)
         param_list = [[0.02, 0.2, -65, 8],
 						[0.02, 0.2, -55, 4],
 						[0.02, 0.2, -50, 2],
@@ -162,3 +163,8 @@ class Spikes_at_will(Neuron):
         self.awaiting_timer = self.awaiting_time
         self.refresh_cooldown = self.refresh_time
         self.spike_occured = False
+
+    def change_props(self, **kwargs):
+        self.awaiting_time = kwargs.get('awaiting_time', self.awaiting_time)
+        self.refresh_time = kwargs.get('refresh_time', self.refresh_time)
+        self.refresh()
