@@ -41,6 +41,15 @@ class SNNModel:
     def get_graph(self):
         return self.graph
     
+    def spit_for_pyvis(self):
+        new_graph = nx.DiGraph()
+        for i in self.neurons:
+            new_graph.add_node(str(self.neurons[i]))
+        for j in self.syn_by_edge:
+            new_graph.add_edge(str(j[0]), str(j[1]), weight=str(self.syn_by_edge[j].get_weight()))
+        return new_graph
+        #   str(self.syn_by_edge[j]),
+    
     def generate_model(self, config):
         cfg = read_config(config)
         id = 0
