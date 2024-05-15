@@ -8,7 +8,7 @@ class Synapse:
         self.slow_var = 0
         self.slow_tau = kwargs.get('slow_tau', 100)
         self.forget_tau = kwargs.get('forget_tau', 10000)
-        self.w = .5
+        self.w = np.random.uniform(0, 1)
         self.slow_variable_limit = kwargs.get('slow_variable_limit', None)
         if self.slow_variable_limit:
             self.slow_var_choice = self.slow_var_limited

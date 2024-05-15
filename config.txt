@@ -1,18 +1,24 @@
 {
     "Neurons": {
-        "Input_neurons": {
+        "L0": {
             "Type": "Spikes_at_will",
             "Number": 2,
             "I": [3, 10],
             "Preset": "None"
         },
-        "Hidden_neurons": {
+        "L1": {
             "Type": "Izhikevich",
-            "Number": 4,
+            "Number": 10,
             "I": 0,
             "Preset": "RS"
         },
-        "Output_neurons": {
+        "L2": {
+            "Type": "Izhikevich",
+            "Number": 10,
+            "I": 0,
+            "Preset": "RS"
+        },
+        "L3": {
             "Type": "Izhikevich",
             "Number": 2,
             "I": 0,
@@ -20,20 +26,35 @@
         }
     },
     "Synapses": {
-        "Input_layer": {
-            "Type": "FC",
-            "Per_neuron": 1,
-            "Delayed": "False"
+        "L0 L1": {
+            "Connection_type": "FC",
+            "Synapse_type": "Vanilla",
+            "Between_layers": "L0 L1",
+            "Num_con": 2
         },
-        "Hidden_layer": {
-            "Type": "Random",
-            "Per_neuron": 3,
-            "Delayed": "False"
+        "L1": {
+            "Connection_type": "Rand",
+            "Synapse_type": "Vanilla",
+            "Between_layers": "False",
+            "Num_con": 8
         },
-        "Output_layer": {
-            "Type": "Random",
-            "Per_neuron": 2,
-            "Delayed": "False"
+        "L1 L2": {
+            "Connection_type": "Rand",
+            "Synapse_type": "Vanilla",
+            "Between_layers": "L1 L2",
+            "Num_con": 3
+        },
+        "L2": {
+            "Connection_type": "Rand",
+            "Synapse_type": "Vanilla",
+            "Between_layers": "False",
+            "Num_con": 6
+        },
+        "L2 L3": {
+            "Connection_type": "Rand",
+            "Synapse_type": "Vanilla",
+            "Between_layers": "L2 L3",
+            "Num_con": 4
         }
     }
 

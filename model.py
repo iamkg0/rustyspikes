@@ -3,27 +3,43 @@ from neurons import *
 from synaptics import *
 from utils import *
 
-
 class SNNModel:
     def __init__(self, **kwargs):
-        self.incidence_matrix = []
-        self.in_layer = []
-        self.hid_layer = []
-        self.out_layer = []
         self.types_of_neurons = {"Spikes_at_will": Spikes_at_will,
                                  "Izhikevich": Izhikevich,
                                  "Probability_neuron": Probability_neuron}
-        self.types_of_synapses = {"FC": Synapse,
-                                  "Random": Synapse,
-                                  "None": None}
+        self.types_of_synapses = {"Vanilla": Synapse,
+                                  "Delayed": None}
+        self.LEGACY = {"fast_gnp": nx.fast_gnp_random_graph,
+                                     "gnp": nx.gnp_random_graph,
+                                     "gnm": nx.gnm_random_graph,
+                                     "erdos_renyi": nx.erdos_renyi_graph,
+                                     "binominal": nx.binomial_graph,
+                                     "FC": self.fc,
+                                     "None": None}
+        self.types_of_connections = {"FC": self.fc,
+                                     "Rand": self.rc}
+
         self.layers = {}
         self.neurons = {}
+        self.synapses = {}
+        self.edge_by_syn = {}
+        self.syn_by_edge = {}
         self.graph = nx.DiGraph()
         self.color_map = []
         self.color_set = kwargs.get("color_set", ("red", "green", "blue", "yellow", "cyan", "pink", "brown"))
 
     def __getitem__(self, idx):
         return self.neurons[idx]
+    
+    def show_config(self):
+        conf = {}
+        conf['Layers of neurons'] = self.layers
+        conf['synapses'] = self.syn_by_edge
+        return conf
+    
+    def get_graph(self):
+        return self.graph
     
     def generate_model(self, config):
         cfg = read_config(config)
@@ -36,8 +52,28 @@ class SNNModel:
             self.layers[neural_layer] = layer
             c_indx += 1
         self.idxs()
-        print(self.graph)
+        # TO DO: Edges
+        for syn_layer in cfg_syn:
+            temp = self.extract_syn_layer_props(cfg_syn[syn_layer])
+            con_type, synapse_type, between_layers, number_connections = temp
+            if between_layers == "False":
+                self.connect_inside(syn_layer, synapse_type, number_connections)
+            else:
+                part_l = self.get_particular_layers(between_layers)
+                self.connect_between(part_l, synapse_type, self.types_of_connections[con_type], number_connections)
+        self.update_weights()
+
         
+    def update_weights(self):
+        for syns in self.syn_by_edge:
+            print(syns, self.syn_by_edge[syns].get_weight())
+            self.graph[self.neurons[syns[0]]][self.neurons[syns[1]]]['weight'] = self.syn_by_edge[syns].get_weight()
+    
+    def extract_syn_layer_props(self, syn_layer):
+        props = []
+        for i in syn_layer:
+            props.append(syn_layer[i])
+        return props
 
 
     def create_neuron(self, id, type, I, preset, color, resolution=.1):
@@ -65,10 +101,51 @@ class SNNModel:
         for i in self.graph:
             self.neurons[idx] = i
             idx += 1
-
-    def set_colors_nodes(self, colors=('red', 'green', 'blue')):
-        for i in self.neurons:
-            pass
     
-    def create_collection_edges(self, cfg_syn):
-        pass
+
+    def get_particular_layers(self, layers):
+        ls = layers.split(' ')
+        return ls
+    
+    def connect_inside(self, layer_req, syn_type, num_con):
+        nodes = self.layers[layer_req]
+        edges = []
+        for pre_node_i in range(len(nodes)):
+            temp = nodes[:pre_node_i]
+            temp_1 = nodes[pre_node_i+1:]
+            post_nodes = random.sample(temp + temp_1, num_con)
+            for j in post_nodes:
+                edge = nodes[pre_node_i], j
+                edges.append(edge)
+                self.create_synapse(nodes[pre_node_i], j, syn_type)
+
+
+    def connect_between(self, layers_req, syn_type, method, num_con):
+        pre = self.layers[layers_req[0]]
+        post = self.layers[layers_req[1]]
+        method(pre, post, syn_type, num_con)
+
+    def fc(self, pre, post, syn_type, num_con):
+        stack = []
+        syns = []
+        for i in pre:
+            for j in post:
+                stack.append((i, j))
+                syns.append(self.create_synapse(i, j, syn_type))
+        return stack, syns
+    
+    def create_synapse(self, pre_id, post_id, syn_type):
+        syn = self.types_of_synapses[syn_type](self.neurons[pre_id.get_id()], self.neurons[post_id.get_id()])
+        self.graph.add_edge(self.neurons[pre_id.get_id()], self.neurons[post_id.get_id()], weight=syn.get_weight())
+        self.syn_by_edge[(pre_id.get_id(), post_id.get_id())] = syn
+        return syn
+
+    def rc(self, pre, post, syn_type, num_con):
+        stack = []
+        syns = []
+        for i in range(num_con):
+            pre_chosen = random.choice(pre)
+            post_chosen = random.choice(post)
+            stack.append((pre_chosen, post_chosen))
+            syns.append(self.create_synapse(pre_chosen, post_chosen, syn_type))
+    

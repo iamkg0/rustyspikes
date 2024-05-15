@@ -75,6 +75,9 @@ class Neuron:
         Returns the amount of current this neuron recieves
         '''
         return self.I
+    
+    def get_id(self):
+        return self.id
 
 
 class Izhikevich(Neuron):
