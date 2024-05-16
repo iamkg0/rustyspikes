@@ -44,11 +44,18 @@ class SNNModel:
     
     def get_graph(self):
         return self.graph
+    
+    def get_neurons_by_edge(self, edge):
+        return self.neurons[edge[0]], self.neurons[edge[1]]
    
     '''
     Handling the model:
     '''
     def generate_model(self, config):
+        '''
+        Generates the model according to
+        certain configuration
+        '''
         cfg = read_config(config)
         id = 0
         cfg_neu = cfg["Neurons"]
@@ -71,6 +78,9 @@ class SNNModel:
         self.update_weights()
     
     def update_weights(self):
+        '''
+        Updates weight attributes in graph
+        '''
         for syns in self.syn_by_edge:
             self.graph[self.neurons[syns[0]]][self.neurons[syns[1]]]['weight'] = self.syn_by_edge[syns].get_weight()
 
@@ -81,12 +91,13 @@ class SNNModel:
         for j in self.syn_by_edge:
             self.syn_by_edge[j].forward()
 
-    
-
-    '''
-    Misc:
-    '''
     def add_neuron(self, neuron, id=None):
+        '''
+        Adds neuron (object) to the model
+        (does not affect graph
+        Do not forget to use reaload_graph()
+        after the model architecture is complete)
+        '''
         if not id:
             id = len(self.neurons)
             neuron.id = id
@@ -94,32 +105,65 @@ class SNNModel:
         self.neurons[id] = neuron
 
     def add_synapse(self, synapse):
+        '''
+        Adds synapse (object) to the model
+        (does not affect graph
+        Do not forget to use reaload_graph()
+        after the model architecture is complete)
+        '''
         self.syn_by_edge[synapse.get_ids()] = synapse
 
+    '''
+    Misc:
+    '''
     def reload_graph(self):
+        '''
+        re-initializes graph.
+        Perhaps, it will be necessary to
+        re-implement this function, given that
+        this one literally creates a new graph
+        '''
         self.graph = nx.DiGraph()
         for i in self.neurons:
             self.graph.add_node(self.neurons[i])
         for j in self.syn_by_edge:
             self.graph.add_edge(*self.get_neurons_by_edge(j), weight=self.syn_by_edge[j].get_weight())
-            # self.neurons[self.syn_by_edge[j].get_ids()[0]], self.neurons[self.syn_by_edge[j].get_ids()[1]]
-
-    def get_neurons_by_edge(self, edge):
-        return self.neurons[edge[0]], self.neurons[edge[1]]
 
     def extract_syn_layer_props(self, syn_layer):
+        '''
+        Extracts properties. Works for layers only
+        Used in generate_model()
+        '''
         props = []
         for i in syn_layer:
             props.append(syn_layer[i])
         return props
 
     def create_neuron(self, id, type, I, preset, color, resolution=.1):
+        '''
+        Creates a new neuron
+        Used in generate_model()
+        '''
         neuron = self.types_of_neurons[type](preset=preset, id=id, I=I, resolution=resolution)
         self.graph.add_node(neuron)
         self.color_map.append(color)
         return neuron
+    
+    def create_synapse(self, pre_id, post_id, syn_type):
+        '''
+        Creates a new synapse
+        Used in generate_model()
+        '''
+        syn = self.types_of_synapses[syn_type](self.neurons[pre_id.get_id()], self.neurons[post_id.get_id()])
+        self.graph.add_edge(self.neurons[pre_id.get_id()], self.neurons[post_id.get_id()], weight=syn.get_weight())
+        self.syn_by_edge[(pre_id.get_id(), post_id.get_id())] = syn
+        return syn
 
     def create_layer(self, id, cfg_neu, color):
+        '''
+        Creates a layer of neurons by config
+        Used in generate_model()
+        '''
         neu_type = cfg_neu["Type"]
         neu_num = cfg_neu["Number"]
         neu_Is = cfg_neu["I"]
@@ -134,16 +178,27 @@ class SNNModel:
         return layer, id
     
     def idxs(self):
+        '''
+        Adds indexes to neurons
+        Used in generate_model()
+        '''
         idx = 0
         for i in self.graph:
             self.neurons[idx] = i
             idx += 1
 
     def get_particular_layers(self, layers):
+        '''
+        Misc for generate_model()
+        '''
         ls = layers.split(' ')
         return ls
     
     def connect_inside(self, layer_req, syn_type, num_con):
+        '''
+        Connects neurons inside the layer
+        Used in generate_model()
+        '''
         nodes = self.layers[layer_req]
         edges = []
         for pre_node_i in range(len(nodes)):
@@ -156,11 +211,20 @@ class SNNModel:
                 self.create_synapse(nodes[pre_node_i], j, syn_type)
 
     def connect_between(self, layers_req, syn_type, method, num_con):
+        '''
+        Connects layers of neurons
+        Used in generate_model()
+        '''
         pre = self.layers[layers_req[0]]
         post = self.layers[layers_req[1]]
         method(pre, post, syn_type, num_con)
 
     def fc(self, pre, post, syn_type, num_con):
+        '''
+        Algorithm for creating fully-connected layer
+        of synapses
+        Used in generate_model()
+        '''
         stack = []
         syns = []
         for i in pre:
@@ -168,14 +232,12 @@ class SNNModel:
                 stack.append((i, j))
                 syns.append(self.create_synapse(i, j, syn_type))
         return stack, syns
-    
-    def create_synapse(self, pre_id, post_id, syn_type):
-        syn = self.types_of_synapses[syn_type](self.neurons[pre_id.get_id()], self.neurons[post_id.get_id()])
-        self.graph.add_edge(self.neurons[pre_id.get_id()], self.neurons[post_id.get_id()], weight=syn.get_weight())
-        self.syn_by_edge[(pre_id.get_id(), post_id.get_id())] = syn
-        return syn
 
     def rc(self, pre, post, syn_type, num_con):
+        '''
+        Algorithm for creating random connections
+        Used in generate_model()
+        '''
         stack = []
         syns = []
         for i in range(num_con):
@@ -185,12 +247,18 @@ class SNNModel:
             syns.append(self.create_synapse(pre_chosen, post_chosen, syn_type))
 
     def empty_function(self):
+        '''
+        Helps to avoid if-else statesments. Lmao
+        '''
         pass
 
     '''
     For advanced visuals:
     '''    
     def spit_for_pyvis(self):
+        '''
+        Returns a graph that is consumable by pyvis
+        '''
         new_graph = nx.DiGraph()
         for i in self.neurons:
             new_graph.add_node(self.neurons[i].get_id(), title=str(self.neurons[i].get_id()))
