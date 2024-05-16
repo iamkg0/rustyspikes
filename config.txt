@@ -1,9 +1,9 @@
 {
     "Neurons": {
         "L0": {
-            "Type": "Spikes_at_will",
-            "Number": 2,
-            "I": [3, 10],
+            "Type": "Probability_neuron",
+            "Number": 4,
+            "I": [3, 10, 14, 6],
             "Preset": "None"
         },
         "L1": {
@@ -30,13 +30,13 @@
             "Connection_type": "FC",
             "Synapse_type": "Vanilla",
             "Between_layers": "L0 L1",
-            "Num_con": 2
+            "Num_con": 4
         },
         "L1": {
             "Connection_type": "Rand",
             "Synapse_type": "Vanilla",
             "Between_layers": "False",
-            "Num_con": 8
+            "Num_con": 3
         },
         "L1 L2": {
             "Connection_type": "Rand",
@@ -48,7 +48,7 @@
             "Connection_type": "Rand",
             "Synapse_type": "Vanilla",
             "Between_layers": "False",
-            "Num_con": 6
+            "Num_con": 3
         },
         "L2 L3": {
             "Connection_type": "Rand",

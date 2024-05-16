@@ -10,13 +10,6 @@ class SNNModel:
                                  "Probability_neuron": Probability_neuron}
         self.types_of_synapses = {"Vanilla": Synapse,
                                   "Delayed": None}
-        self.LEGACY = {"fast_gnp": nx.fast_gnp_random_graph,
-                                     "gnp": nx.gnp_random_graph,
-                                     "gnm": nx.gnm_random_graph,
-                                     "erdos_renyi": nx.erdos_renyi_graph,
-                                     "binominal": nx.binomial_graph,
-                                     "FC": self.fc,
-                                     "None": None}
         self.types_of_connections = {"FC": self.fc,
                                      "Rand": self.rc}
 
@@ -29,27 +22,33 @@ class SNNModel:
         self.color_map = []
         self.color_set = kwargs.get("color_set", ("red", "green", "blue", "yellow", "cyan", "pink", "brown"))
 
+        '''
+        Get info:
+        '''
     def __getitem__(self, idx):
         return self.neurons[idx]
     
     def show_config(self):
         conf = {}
-        conf['Layers of neurons'] = self.layers
+        conf['Neurons'] = self.neurons
         conf['synapses'] = self.syn_by_edge
         return conf
     
+    def get_neuron_stats(self, id):
+        v = self.neurons[id].get_voltage_dynamics()
+        impulse = self.neurons[id].get_output_current()
+        I = self.neurons[id].get_input_current()
+        return v, impulse, I
+    
+    def get_weight(self, id):
+        return self.syn_by_edge[id].get_weight()
+    
     def get_graph(self):
         return self.graph
-    
-    def spit_for_pyvis(self):
-        new_graph = nx.DiGraph()
-        for i in self.neurons:
-            new_graph.add_node(str(self.neurons[i]))
-        for j in self.syn_by_edge:
-            new_graph.add_edge(str(j[0]), str(j[1]), weight=str(self.syn_by_edge[j].get_weight()))
-        return new_graph
-        #   str(self.syn_by_edge[j]),
-    
+   
+    '''
+    Handling the model:
+    '''
     def generate_model(self, config):
         cfg = read_config(config)
         id = 0
@@ -71,19 +70,49 @@ class SNNModel:
                 part_l = self.get_particular_layers(between_layers)
                 self.connect_between(part_l, synapse_type, self.types_of_connections[con_type], number_connections)
         self.update_weights()
-
-        
+    
     def update_weights(self):
         for syns in self.syn_by_edge:
-            print(syns, self.syn_by_edge[syns].get_weight())
             self.graph[self.neurons[syns[0]]][self.neurons[syns[1]]]['weight'] = self.syn_by_edge[syns].get_weight()
+
+    def tick(self):
+        for i in self.neurons:
+            self.neurons[i].dynamics()
+            self.neurons[i].apply_cum_current()
+        for j in self.syn_by_edge:
+            self.syn_by_edge[j].forward()
+
     
+
+    '''
+    Utils:
+    '''
+    def add_neuron(self, neuron, id=None):
+        if not id:
+            id = len(self.neurons)
+            neuron.id = id
+            print(id)
+        self.neurons[id] = neuron
+
+    def add_synapse(self, synapse):
+        self.syn_by_edge[synapse.get_ids()] = synapse
+
+    def reload_graph(self):
+        self.graph = nx.DiGraph()
+        for i in self.neurons:
+            self.graph.add_node(self.neurons[i])
+        for j in self.syn_by_edge:
+            self.graph.add_edge(*self.get_neurons_by_edge(j))
+            # self.neurons[self.syn_by_edge[j].get_ids()[0]], self.neurons[self.syn_by_edge[j].get_ids()[1]]
+
+    def get_neurons_by_edge(self, edge):
+        return self.neurons[edge[0]], self.neurons[edge[1]]
+
     def extract_syn_layer_props(self, syn_layer):
         props = []
         for i in syn_layer:
             props.append(syn_layer[i])
         return props
-
 
     def create_neuron(self, id, type, I, preset, color, resolution=.1):
         neuron = self.types_of_neurons[type](preset=preset, id=id, I=I, resolution=resolution)
@@ -110,7 +139,6 @@ class SNNModel:
         for i in self.graph:
             self.neurons[idx] = i
             idx += 1
-    
 
     def get_particular_layers(self, layers):
         ls = layers.split(' ')
@@ -127,7 +155,6 @@ class SNNModel:
                 edge = nodes[pre_node_i], j
                 edges.append(edge)
                 self.create_synapse(nodes[pre_node_i], j, syn_type)
-
 
     def connect_between(self, layers_req, syn_type, method, num_con):
         pre = self.layers[layers_req[0]]
@@ -157,4 +184,14 @@ class SNNModel:
             post_chosen = random.choice(post)
             stack.append((pre_chosen, post_chosen))
             syns.append(self.create_synapse(pre_chosen, post_chosen, syn_type))
-    
+
+    '''
+    For advanced visuals:
+    '''    
+    def spit_for_pyvis(self):
+        new_graph = nx.DiGraph()
+        for i in self.neurons:
+            new_graph.add_node(str(self.neurons[i]))
+        for j in self.syn_by_edge:
+            new_graph.add_edge(str(self.get_neurons_by_edge(j)[0]), str(self.get_neurons_by_edge(j)[1]), weight=str(self.syn_by_edge[j].get_weight()))
+        return new_graph
