@@ -12,6 +12,8 @@ class SNNModel:
                                   "Delayed": None}
         self.types_of_connections = {"FC": self.fc,
                                      "Rand": self.rc}
+        self.learning_variants = {None: self.empty_function,
+                                  'pair_stdp': self.synapses}
 
         self.layers = {}
         self.neurons = {}
@@ -85,7 +87,7 @@ class SNNModel:
     
 
     '''
-    Utils:
+    Misc:
     '''
     def add_neuron(self, neuron, id=None):
         if not id:
@@ -184,6 +186,9 @@ class SNNModel:
             post_chosen = random.choice(post)
             stack.append((pre_chosen, post_chosen))
             syns.append(self.create_synapse(pre_chosen, post_chosen, syn_type))
+
+    def empty_function(self):
+        pass
 
     '''
     For advanced visuals:
