@@ -15,6 +15,11 @@ class Synapse:
             self.slow_var_choice = self.slow_var_limited
         else:
             self.slow_var_choice = self.slow_var_unlimited
+        self.learning_rules = {None: None,
+                               'pair_stdp': self.pair_stdp,
+                               't_stdp': self.t_stdp,
+                               't_stdp_forget': self.t_stdp_forgetting,
+                               'bcm': self.bcm}
 
 
     def forward(self):

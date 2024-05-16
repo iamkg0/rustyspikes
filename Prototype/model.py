@@ -12,9 +12,6 @@ class SNNModel:
                                   "Delayed": None}
         self.types_of_connections = {"FC": self.fc,
                                      "Rand": self.rc}
-        self.learning_variants = {None: self.empty_function,
-                                  'pair_stdp': self.synapses}
-
         self.layers = {}
         self.neurons = {}
         self.synapses = {}

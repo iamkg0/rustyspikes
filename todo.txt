@@ -1,0 +1,4 @@
+Length of graph edges
+Animation (maybe)
+BCM rule
+Rules manipulations (auto-set, manual set etc etc etc)
