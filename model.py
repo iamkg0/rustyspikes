@@ -102,7 +102,7 @@ class SNNModel:
         for i in self.neurons:
             self.graph.add_node(self.neurons[i])
         for j in self.syn_by_edge:
-            self.graph.add_edge(*self.get_neurons_by_edge(j))
+            self.graph.add_edge(*self.get_neurons_by_edge(j), weight=self.syn_by_edge[j].get_weight())
             # self.neurons[self.syn_by_edge[j].get_ids()[0]], self.neurons[self.syn_by_edge[j].get_ids()[1]]
 
     def get_neurons_by_edge(self, edge):
@@ -191,7 +191,8 @@ class SNNModel:
     def spit_for_pyvis(self):
         new_graph = nx.DiGraph()
         for i in self.neurons:
-            new_graph.add_node(str(self.neurons[i]))
+            new_graph.add_node(self.neurons[i].get_id(), title=str(self.neurons[i].get_id()))
+            print(self.neurons[i].get_id())
         for j in self.syn_by_edge:
-            new_graph.add_edge(str(self.get_neurons_by_edge(j)[0]), str(self.get_neurons_by_edge(j)[1]), weight=str(self.syn_by_edge[j].get_weight()))
+            new_graph.add_edge(self.get_neurons_by_edge(j)[0].get_id(), self.get_neurons_by_edge(j)[1].get_id(), weight=self.syn_by_edge[j].get_weight())
         return new_graph

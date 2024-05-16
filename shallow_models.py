@@ -1,6 +1,9 @@
 from model import *
 
-def m_v0():
+def net_v0():
+    '''
+    5-to-1 test subject
+    '''
     snn = SNNModel()
     rt=60
     in0 = Spikes_at_will(awaiting_time=2, refresh_time=rt)
@@ -25,5 +28,20 @@ def m_v0():
     snn.add_synapse(syn2)
     snn.add_synapse(syn3)
     snn.add_synapse(syn4)
+    snn.reload_graph()
+    return snn
+
+def single_synapse():
+    '''
+    1-to-1 test subject
+    '''
+    snn = SNNModel()
+    rt = 100
+    input = Spikes_at_will(awaiting_time=2, refresh_time=rt)
+    output = Spikes_at_will(awaiting_time=30, refresh_time=rt)
+    syn = Synapse(input, output, scale=1)
+    snn.add_neuron(input)
+    snn.add_neuron(output)
+    snn.add_synapse(syn)
     snn.reload_graph()
     return snn
