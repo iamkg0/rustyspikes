@@ -2,7 +2,7 @@ from model import *
 from neurons import *
 from synaptics import *
 from utils import *
-from protocols import *
+from Prototype.vis_functions import *
 from shallow_models import *
 from pyvis.network import Network
 import matplotlib.pyplot as plt
@@ -27,7 +27,14 @@ def pyvis_test(model):
         j["title"] = j["width"]
     net.show('graph.html')
 
+read_config('config.txt')
 
+Big_model = SNNModel()
+Big_model.generate_model()
+pyvis_test(Big_model)
+
+
+'''
 model = net_v0()
 pos = nx.spring_layout(model)
 nx.draw_networkx_nodes(model, node_size=20)
@@ -39,3 +46,4 @@ nx.draw_networkx_edge_labels(model, edge_labels)
 ax = plt.gca()
 ax.margins(.08)
 plt.show()
+'''

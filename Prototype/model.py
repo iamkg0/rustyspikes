@@ -30,7 +30,7 @@ class SNNModel:
     def show_config(self):
         conf = {}
         conf['Neurons'] = self.neurons
-        conf['synapses'] = self.syn_by_edge
+        conf['Synapses'] = self.syn_by_edge
         return conf
     
     def get_neuron_stats(self, id):
@@ -51,7 +51,7 @@ class SNNModel:
     '''
     Handling the model:
     '''
-    def generate_model(self, config):
+    def generate_model(self, config='config.txt'):
         '''
         Generates the model according to
         certain configuration
@@ -266,3 +266,4 @@ class SNNModel:
         for j in self.syn_by_edge:
             new_graph.add_edge(self.get_neurons_by_edge(j)[0].get_id(), self.get_neurons_by_edge(j)[1].get_id(), weight=self.syn_by_edge[j].get_weight())
         return new_graph
+    

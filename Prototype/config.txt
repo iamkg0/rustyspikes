@@ -1,26 +1,26 @@
 {
     "Neurons": {
         "L0": {
-            "Type": "Probability_neuron",
-            "Number": 4,
-            "I": [3, 10, 14, 6],
-            "Preset": "None"
+            "Type": "Izhikevich",
+            "Number": 20,
+            "I": 10,
+            "Preset": "RS"
         },
         "L1": {
             "Type": "Izhikevich",
-            "Number": 10,
+            "Number": 20,
             "I": 0,
             "Preset": "RS"
         },
         "L2": {
             "Type": "Izhikevich",
-            "Number": 10,
+            "Number": 20,
             "I": 0,
             "Preset": "RS"
         },
         "L3": {
             "Type": "Izhikevich",
-            "Number": 2,
+            "Number": 20,
             "I": 0,
             "Preset": "RS"
         }
@@ -30,31 +30,31 @@
             "Connection_type": "FC",
             "Synapse_type": "Vanilla",
             "Between_layers": "L0 L1",
-            "Num_con": 4
+            "Num_con": 2
         },
         "L1": {
             "Connection_type": "Rand",
             "Synapse_type": "Vanilla",
             "Between_layers": "False",
-            "Num_con": 3
+            "Num_con": 2
         },
         "L1 L2": {
             "Connection_type": "Rand",
             "Synapse_type": "Vanilla",
             "Between_layers": "L1 L2",
-            "Num_con": 3
+            "Num_con": 2
         },
         "L2": {
             "Connection_type": "Rand",
             "Synapse_type": "Vanilla",
             "Between_layers": "False",
-            "Num_con": 3
+            "Num_con": 2
         },
         "L2 L3": {
             "Connection_type": "Rand",
             "Synapse_type": "Vanilla",
             "Between_layers": "L2 L3",
-            "Num_con": 4
+            "Num_con": 2
         }
     }
 
