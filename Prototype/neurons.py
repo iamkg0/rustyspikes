@@ -138,11 +138,9 @@ class Spikes_at_will(Neuron):
         self.awaiting_time = kwargs.get('awaiting_time', 10)
         self.awaiting_timer = self.awaiting_time
         self.awaiting_time_passed = False
-
         self.refresh_time = kwargs.get('refresh_time', 300)
         self.refresh_cooldown = self.refresh_time
         self.spike_occured = False
-
         self.v = 0
     
     def dynamics(self):

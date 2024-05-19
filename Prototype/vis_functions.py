@@ -13,58 +13,81 @@ def short_single_synapse(pre_neu, post_neu, synapse, time, res=.1, rule=None, fw
 
 
 class Gatherer:
-    def __init__(self, model, pre_ids, post_ids):
-        '''This is stupid. I wil rewrite this'''
+    def __init__(self, model):
         self.model = model
-        self.neurons = model.show_config()['Neurons']
-        self.synapses = model.show_config()['Synapses']
-        self.post_ids = post_ids
-        self.pre_ids = pre_ids
-        self.pre_vs = [[] for i in range(len(pre_ids))]
-        self.post_vs = [[] for i in range(len(post_ids))]
-        self.pre_impulses = [[] for i in range(len(pre_ids))]
-        self.post_impulses = [[] for i in range(len(post_ids))]
-        self.weights = [[] for i in range(len(self.synapses))]
-        self.pre_is = [[] for i in range(len(pre_ids))]
-        self.post_is = [[] for i in range(len(post_ids))]
-
-    def gather_stats(self, pre_ids=None, post_ids=None):
-        if not pre_ids:
-            pre_ids = self.pre_ids
-        if not post_ids:
-            post_ids = self.post_ids
+        self.vs = [[] for i in self.model.show_config()['Neurons']]
+        self.impulses = [[] for i in self.model.show_config()['Neurons']]
+        self.Is = [[] for i in self.model.show_config()['Neurons']]
+        self.weights = [[] for i in self.model.show_config()['Synapses']]
+        self.weight_index_by_edge = {}
         counter = 0
-        for pre in pre_ids:
-            v, impulse, I = self.model.get_neuron_stats(pre)
-            self.pre_vs[counter].append(v)
-            self.pre_impulses[counter].append(impulse)
-            self.pre_is[counter].append(I)
-            counter += 1
-        counter = 0
-        for post in post_ids:
-            v, impulse, I = self.model.get_neuron_stats(post)
-            self.post_vs[counter].append(v)
-            self.post_impulses[counter].append(impulse)
-            self.post_is[counter].append(I)
+        for i in self.model.show_config()['Synapses']:
+            self.weight_index_by_edge[i] = counter
             counter += 1
 
-    def get_stats(self, pre_ids=None, post_ids=None):
+    def gather_stats(self):
+        for i in self.model.show_config()['Neurons']:
+            self.vs[i].append(self.model.neurons[i].get_voltage_dynamics())
+            self.impulses[i].append(self.model.neurons[i].get_output_current())
+            self.Is[i].append(self.model.neurons[i].get_input_current())
+        counter = 0
+        for w in self.model.show_config()["Synapses"]:
+            self.weights[counter].append(self.model.syn_by_edge[w].get_weight())
+            counter += 1
+
+    def get_stats(self, pre_ids = None, post_ids = None, weight_ids = None):
         if not pre_ids:
-            pre_ids = self.pre_ids
+            pre_ids = list(range(len(self.vs)-1))
         if not post_ids:
-            post_ids = self.post_ids
-        pre_ids = self.neurons[*pre_ids]
-        pre_vs = np.array(self.pre_vs)[pre_ids]
-        pre_impulses = np.array(self.pre_impulses)[pre_ids]
-        pre_is = np.array(self.pre_is)[pre_ids]
-        print(pre_vs)
-        post_vs = np.array(self.post_vs)[post_ids]
-        post_impulses = np.array(self.post_impulses)[post_ids]
-        post_is = np.array(self.post_is)[post_ids]
-        return pre_vs, pre_impulses, pre_is, post_vs, post_impulses, post_is
-            
-
-
+            post_ids = [len(pre_ids)]
+        if not weight_ids:
+            weight_ids = [i for i in self.weight_index_by_edge] #list of tuples with ids
+        weight_indexes = []
+        for i in weight_ids:
+            weight_indexes.append(self.weight_index_by_edge[i])
+        pre_vs = np.array(self.vs)[pre_ids]
+        pre_impulses = np.array(self.impulses)[pre_ids]
+        pre_Is = np.array(self.Is)[pre_ids]
+        post_vs = np.array(self.vs)[post_ids]
+        post_impulses = np.array(self.impulses)[post_ids]
+        post_Is = np.array(self.Is)[post_ids]
+        ws = np.array(self.weights)[weight_indexes]
+        return pre_vs, pre_impulses, pre_Is, post_vs, post_impulses, post_Is, ws
+    
+def draw_stats_gatherer(pre_vs, pre_impulses, pre_Is, post_vs, post_impulses, post_Is, ws, time_range, resolution=None, fwidth=16, fheight=12):
+    if not isinstance(time_range, np.ndarray) or isinstance(time_range, list):
+        if not resolution:
+            raise Exception('I require integration step or time array')
+        time_range = np.arange(int(time_range / resolution)) * resolution
+    figure, axis = plt.subplots(7, 1)
+    plt.subplots_adjust(hspace=.5)
+    figure.set_figwidth(fwidth)
+    figure.set_figheight(fheight)
+    for i in range(pre_vs.shape[0]):
+        pre_voltage = axis[0]
+        pre_imps = axis[1]
+        pre_inp_is = axis[2]
+        pre_voltage.plot(time_range, pre_vs[i])
+        pre_imps.plot(time_range, pre_impulses[i])
+        pre_inp_is.plot(time_range, pre_Is[i])
+    for j in range(post_vs.shape[0]):
+        post_voltage = axis[3]
+        post_imps = axis[4]
+        post_inp_is = axis[5]
+        post_voltage.plot(time_range, post_vs[j])
+        post_imps.plot(time_range, post_impulses[j])
+        post_inp_is.plot(time_range, post_Is[j])
+    for w in range(ws.shape[0]):
+        weights = axis[6]
+        weights.plot(time_range, ws[w])
+    pre_voltage.set_title('Presynaptic potential')
+    pre_imps.set_title('Presynaptic synaptic output')
+    pre_inp_is.set_title('Presynaptic input current')
+    post_voltage.set_title('Postsynaptic potential')
+    post_imps.set_title('Postsynaptic synaptic output')
+    post_inp_is.set_title('Postsynaptic input current')
+    weights.set_title('Weight changes')
+    plt.show()
 
 '''
 Single synapse simulation:
@@ -239,7 +262,6 @@ def simulate_several(pre, post, time, ap_scale=[1]):
 
     aps = np.array(spikes_pre)
     aps = aps.sum(0)
-    print(aps.shape)
     for step in range(len(t)):
         post.apply_current(aps[step] * ap_scale)
         spikes_post.append(post.dynamics())

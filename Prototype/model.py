@@ -15,7 +15,7 @@ class SNNModel:
         self.layers = {}
         self.neurons = {}
         self.synapses = {}
-        self.edge_by_syn = {}
+        self.l_rules = {}
         self.syn_by_edge = {}
         self.graph = nx.DiGraph()
         self.color_map = []
@@ -101,7 +101,6 @@ class SNNModel:
         if not id:
             id = len(self.neurons)
             neuron.id = id
-            print(id)
         self.neurons[id] = neuron
 
     def add_synapse(self, synapse):
@@ -112,6 +111,14 @@ class SNNModel:
         after the model architecture is complete)
         '''
         self.syn_by_edge[synapse.get_ids()] = synapse
+
+    def set_rule_to_all(self, rule=None):
+        for i in self.syn_by_edge:
+            self.syn_by_edge[i].change_learning_rule(rule)
+
+    def set_lr_to_all(self, lr=.1):
+        for i in self.syn_by_edge:
+            self.syn_by_edge[i].change_lr(lr)
 
     '''
     Misc:

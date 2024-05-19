@@ -8,14 +8,16 @@ class Synapse:
         self.slow_var = 0
         self.slow_tau = kwargs.get('slow_tau', 100)
         self.forget_tau = kwargs.get('forget_tau', 10000)
-        #self.w = np.random.uniform(0, 1)
-        self.w = 1
+        self.w = np.random.uniform(0.4, .6)
+        #self.w = 1
         self.slow_variable_limit = kwargs.get('slow_variable_limit', False)
         if self.slow_variable_limit:
             self.slow_var_choice = self.slow_var_limited
         else:
             self.slow_var_choice = self.slow_var_unlimited
-        self.learning_rules = {None: None,
+        self.lr = .01
+        self.learning_rule = None
+        self.learning_rules = {None: self.empty_fun,
                                'pair_stdp': self.pair_stdp,
                                't_stdp': self.t_stdp,
                                't_stdp_forget': self.t_stdp_forgetting,
@@ -24,6 +26,7 @@ class Synapse:
 
     def forward(self):
         self.postsynaptic.accumulate_current(self.presynaptic.get_output_current() * self.w * self.scale)
+        self.learning_rules[self.learning_rule]()
 
     def forgetting(self):
         dw = -(self.w * self.postsynaptic.get_output_current()) / self.forget_tau
@@ -32,12 +35,12 @@ class Synapse:
     '''
     Pair-based STDP rule:
     '''
-    def pair_stdp(self, lr=.01, asymmetry=5):
+    def pair_stdp(self, asymmetry=5):
         dw = 0
         if self.presynaptic.get_spike_status():
-            dw -= self.postsynaptic.get_output_current() * self.w * lr * asymmetry
+            dw -= self.postsynaptic.get_output_current() * self.w * self.lr * asymmetry
         if self.postsynaptic.get_spike_status():
-            dw += self.presynaptic.get_output_current() * (1 - self.w) * lr
+            dw += self.presynaptic.get_output_current() * (1 - self.w) * self.lr
         self.w += dw
 
     '''
@@ -55,22 +58,22 @@ class Synapse:
     def slow_var_unlimited(self):
         self.slow_var += 1
 
-    def t_stdp(self, lr=.01, asymmetry=1):
+    def t_stdp(self, asymmetry=1):
         self.compute_slow_variable()
         dw = 0
         if self.presynaptic.get_spike_status():
-            dw -= self.postsynaptic.get_output_current() * self.w * lr * asymmetry
+            dw -= self.postsynaptic.get_output_current() * self.w * self.lr * asymmetry
         if self.postsynaptic.get_spike_status():
-            dw += self.presynaptic.get_output_current() * self.slow_var * (1 - self.w) * lr
+            dw += self.presynaptic.get_output_current() * self.slow_var * (1 - self.w) * self.lr
         self.w += dw
 
-    def t_stdp_forgetting(self, lr=.01, asymmetry=1):
+    def t_stdp_forgetting(self, asymmetry=1):
         self.compute_slow_variable()
         dw = 0
         if self.presynaptic.get_spike_status():
-            dw -= self.postsynaptic.get_output_current() * self.w * lr * asymmetry
+            dw -= self.postsynaptic.get_output_current() * self.w * self.lr * asymmetry
         if self.postsynaptic.get_spike_status():
-            dw += self.presynaptic.get_output_current() * self.slow_var * (1 - self.w) * lr
+            dw += self.presynaptic.get_output_current() * self.slow_var * (1 - self.w) * self.lr
         self.forgetting()
         self.w += dw
         
@@ -99,3 +102,15 @@ class Synapse:
     '''
     def set_weight_manually(self, weight):
         self.w = weight
+
+    def change_lr(self, lr):
+        self.lr = lr
+
+    def change_learning_rule(self, rule):
+        self.learning_rule = rule
+
+    '''
+    Misc:
+    '''
+    def empty_fun(self):
+        pass

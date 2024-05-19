@@ -2,7 +2,7 @@ from model import *
 from neurons import *
 from synaptics import *
 from utils import *
-from Prototype.vis_functions import *
+from vis_functions import *
 from shallow_models import *
 from pyvis.network import Network
 import matplotlib.pyplot as plt
@@ -29,8 +29,7 @@ def pyvis_test(model):
 
 read_config('config.txt')
 
-Big_model = SNNModel()
-Big_model.generate_model()
+Big_model = net_v0()
 pyvis_test(Big_model)
 
 
