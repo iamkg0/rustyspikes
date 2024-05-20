@@ -11,9 +11,8 @@ plt.style.use(['dark_background'])
 
 def test_prot_v0(shallow_model, time=1000):
     snn = shallow_model()
-    snn.set_rule_to_all('t_stdp_forget')
+    snn.set_rule_to_all('t_stdp')
     snn.set_lr_to_all(.1)
-    print(snn.syn_by_edge[(0, 5)].lr)
     gatherer = Gatherer(snn)
     t = np.arange(int(time / res)) * res
     for i in t:

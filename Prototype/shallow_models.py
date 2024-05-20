@@ -46,3 +46,18 @@ def single_synapse():
     snn.add_synapse(syn)
     snn.reload_graph()
     return snn
+
+def delayed_single():
+    '''
+    1-to-1 delayed synapse test
+    '''
+    dsnn = SNNModel()
+    rt = 20
+    input = Spikes_at_will(awaiting_time=2, refresh_time=rt)
+    output = Izhikevich()
+    d_syn = Delayed_synapse(input, output, scale = 100, distance=50)
+    dsnn.add_neuron(input)
+    dsnn.add_neuron(output)
+    dsnn.add_synapse(d_syn)
+    dsnn.reload_graph()
+    return dsnn

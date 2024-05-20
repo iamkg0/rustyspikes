@@ -114,3 +114,23 @@ class Synapse:
     '''
     def empty_fun(self):
         pass
+
+
+
+
+class Delayed_synapse(Synapse):
+    def __init__(self, presynaptic, postsynaptic, **kwargs):
+        super().__init__(presynaptic, postsynaptic, **kwargs)
+        self.presynaptic = presynaptic
+        self.postsynaptic = postsynaptic
+        self.distance = kwargs.get('distance', 1)
+        self.pre_impulse_queue = [0 for i in range(self.distance)]
+        self.pre_spiked = [0 for i in range(self.distance)]
+
+    def forward(self):
+        self.pre_impulse_queue.pop(0)
+        self.pre_spiked.pop(0)
+        self.pre_impulse_queue.append(self.presynaptic.get_output_current())
+        self.pre_spiked.append(0)
+        self.postsynaptic.accumulate_current(self.pre_impulse_queue[0] * self.w * self.scale)
+        self.learning_rules[self.learning_rule]()
