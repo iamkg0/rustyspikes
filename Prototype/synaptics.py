@@ -131,6 +131,6 @@ class Delayed_synapse(Synapse):
         self.pre_impulse_queue.pop(0)
         self.pre_spiked.pop(0)
         self.pre_impulse_queue.append(self.presynaptic.get_output_current())
-        self.pre_spiked.append(0)
+        self.pre_spiked.append(self.postsynaptic.get_spike_status())
         self.postsynaptic.accumulate_current(self.pre_impulse_queue[0] * self.w * self.scale)
         self.learning_rules[self.learning_rule]()
