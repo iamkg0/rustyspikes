@@ -37,13 +37,19 @@ def test_delay_v0(shallow_model, time=1000):
 def test_delay_v1(model, time=1000):
     delay = [[] for i in model.show_config()['Neurons']]
     delay = delay[:-1]
+    dd = [[] for i in model.show_config()['Synapses']]
+    #dd = dd[:-1]
     model.set_rule_to_all(None)
     gatherer = Gatherer(model)
     t = np.arange(int(time/res)) * res
     for i in t:
         model.tick()
+        #if model.neurons[3].get_spike_status():
+            #print(i)
         gatherer.gather_stats()
         for j in range(len(delay)):
             delay[j].append(model.syn_by_edge[j, 3].delay)
+        for d in range(len(dd)):
+            dd[d].append(model.syn_by_edge[d, 3].dd)
     draw_stats_gatherer(*gatherer.get_stats(), t)
-    return model, np.array(delay)
+    return model, np.array(delay), np.array(dd)

@@ -8,8 +8,8 @@ class Synapse:
         self.slow_var = 0
         self.slow_tau = kwargs.get('slow_tau', 100)
         self.forget_tau = kwargs.get('forget_tau', 10000)
-        self.w = np.random.uniform(0.4, .6)
-        #self.w = 1
+        #self.w = np.random.uniform(0.4, .6)
+        self.w = 1
         self.slow_variable_limit = kwargs.get('slow_variable_limit', False)
         if self.slow_variable_limit:
             self.slow_var_choice = self.slow_var_limited
@@ -128,6 +128,10 @@ class Delayed_synapse(Synapse):
         self.pre_impulse_queue = [0 for i in range(self.max_delay)]
         self.pre_spiked = [0 for i in range(self.max_delay)]
 
+        # Debug:
+        self.dd = 0
+        self.delay_debug = 0
+
     def forward(self):
         self.pre_impulse_queue.pop(0)
         self.pre_spiked.pop(0)
@@ -137,11 +141,14 @@ class Delayed_synapse(Synapse):
         self.sophisticated_rule()
         self.learning_rules[self.learning_rule]()
 
-    def sophisticated_rule(self, lr=.1, assymetry=5):
+    def sophisticated_rule(self, lr=1, asymmetry=5):
         delay = self.delay / self.max_delay
+        self.delay_debug = delay
         dd = 0
         if self.presynaptic.get_spike_status():
-            dd += (1 - self.postsynaptic.get_output_current()) * (1 - delay) * lr * assymetry
+            dd -= (1 - self.postsynaptic.get_output_current()) * delay * lr * asymmetry
+            self.dd = dd
         if self.postsynaptic.get_spike_status():
-            dd -= (1 - self.presynaptic.get_output_current()) * delay * lr
+            dd += (1 - self.presynaptic.get_output_current()) * (1 - delay) * lr
+            self.dd = dd
         self.delay += dd

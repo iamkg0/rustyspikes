@@ -65,14 +65,14 @@ def delayed_single():
 
 def delayed_3_to_1():
     dsnn = SNNModel()
-    rt = 30
+    rt = 100
     in0 = Spikes_at_will(awaiting_time=2, refresh_time=rt, synaptic_limit=1)
-    in1 = Spikes_at_will(awaiting_time=12, refresh_time=rt, synaptic_limit=1)
-    in2 = Spikes_at_will(awaiting_time=22, refresh_time=100, synaptic_limit=1)
+    in1 = Spikes_at_will(awaiting_time=4, refresh_time=rt, synaptic_limit=1)
+    in2 = Spikes_at_will(awaiting_time=6, refresh_time=rt, synaptic_limit=1)
     out = Izhikevich(synaptic_limit=1)
-    syn0 = Delayed_synapse(in0, out, scale=40, delay=5)
-    syn1 = Delayed_synapse(in1, out, scale=40, delay=50)
-    syn2 = Delayed_synapse(in2, out, scale=40, delay=150)
+    syn0 = Delayed_synapse(in0, out, scale=7, delay=1)
+    syn1 = Delayed_synapse(in1, out, scale=7, delay=1)
+    syn2 = Delayed_synapse(in2, out, scale=7, delay=1)
     dsnn.add_neuron(in0)
     dsnn.add_neuron(in1)
     dsnn.add_neuron(in2)
