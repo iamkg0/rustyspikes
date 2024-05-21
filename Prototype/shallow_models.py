@@ -53,11 +53,32 @@ def delayed_single():
     '''
     dsnn = SNNModel()
     rt = 20
-    input = Spikes_at_will(awaiting_time=2, refresh_time=rt)
+    input = Spikes_at_will(awaiting_time=10, refresh_time=rt, synaptic_limit=1)
+    #output = Spikes_at_will(awaiting_time=15, refresh_time=rt, synaptic_limit=1)
     output = Izhikevich()
-    d_syn = Delayed_synapse(input, output, scale = 100, distance=50)
+    d_syn = Delayed_synapse(input, output, scale = 40, delay=50)
     dsnn.add_neuron(input)
     dsnn.add_neuron(output)
     dsnn.add_synapse(d_syn)
+    dsnn.reload_graph()
+    return dsnn
+
+def delayed_3_to_1():
+    dsnn = SNNModel()
+    rt = 30
+    in0 = Spikes_at_will(awaiting_time=2, refresh_time=rt, synaptic_limit=1)
+    in1 = Spikes_at_will(awaiting_time=12, refresh_time=rt, synaptic_limit=1)
+    in2 = Spikes_at_will(awaiting_time=22, refresh_time=100, synaptic_limit=1)
+    out = Izhikevich(synaptic_limit=1)
+    syn0 = Delayed_synapse(in0, out, scale=40, delay=5)
+    syn1 = Delayed_synapse(in1, out, scale=40, delay=50)
+    syn2 = Delayed_synapse(in2, out, scale=40, delay=150)
+    dsnn.add_neuron(in0)
+    dsnn.add_neuron(in1)
+    dsnn.add_neuron(in2)
+    dsnn.add_neuron(out)
+    dsnn.add_synapse(syn0)
+    dsnn.add_synapse(syn1)
+    dsnn.add_synapse(syn2)
     dsnn.reload_graph()
     return dsnn

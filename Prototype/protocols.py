@@ -20,3 +20,30 @@ def test_prot_v0(shallow_model, time=1000):
         gatherer.gather_stats()
     draw_stats_gatherer(*gatherer.get_stats(), t)
     return snn
+
+def test_delay_v0(shallow_model, time=1000):
+    delay = []
+    dsnn = shallow_model()
+    dsnn.set_rule_to_all(None)
+    gatherer = Gatherer(dsnn)
+    t = np.arange(int(time/res)) * res
+    for i in t:
+        dsnn.tick()
+        gatherer.gather_stats()
+        delay.append(dsnn.syn_by_edge[0, 1].delay)
+    draw_stats_gatherer(*gatherer.get_stats(), t)
+    return dsnn, delay
+
+def test_delay_v1(model, time=1000):
+    delay = [[] for i in model.show_config()['Neurons']]
+    delay = delay[:-1]
+    model.set_rule_to_all(None)
+    gatherer = Gatherer(model)
+    t = np.arange(int(time/res)) * res
+    for i in t:
+        model.tick()
+        gatherer.gather_stats()
+        for j in range(len(delay)):
+            delay[j].append(model.syn_by_edge[j, 3].delay)
+    draw_stats_gatherer(*gatherer.get_stats(), t)
+    return model, np.array(delay)
