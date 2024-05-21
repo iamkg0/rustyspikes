@@ -123,9 +123,9 @@ class Delayed_synapse(Synapse):
         super().__init__(presynaptic, postsynaptic, **kwargs)
         self.presynaptic = presynaptic
         self.postsynaptic = postsynaptic
-        self.distance = kwargs.get('distance', 1)
-        self.pre_impulse_queue = [0 for i in range(self.distance)]
-        self.pre_spiked = [0 for i in range(self.distance)]
+        self.delay = kwargs.get('delay', 1)
+        self.pre_impulse_queue = [0 for i in range(self.delay)]
+        self.pre_spiked = [0 for i in range(self.delay)]
 
     def forward(self):
         self.pre_impulse_queue.pop(0)
