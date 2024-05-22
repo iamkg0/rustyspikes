@@ -70,7 +70,7 @@ def delayed_3_to_1():
     in1 = Spikes_at_will(awaiting_time=4, refresh_time=rt, synaptic_limit=1)
     in2 = Spikes_at_will(awaiting_time=6, refresh_time=rt, synaptic_limit=1)
     out = Izhikevich(synaptic_limit=1)
-    syn0 = Delayed_synapse(in0, out, scale=7, delay=1)
+    syn0 = Delayed_synapse(in0, out, scale=7, delay=0)
     syn1 = Delayed_synapse(in1, out, scale=7, delay=1)
     syn2 = Delayed_synapse(in2, out, scale=7, delay=1)
     dsnn.add_neuron(in0)
