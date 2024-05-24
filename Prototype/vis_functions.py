@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from utils import *
-
+res = .1
 
 ''' SHORTCUTS '''
 def short_single_synapse(pre_neu, post_neu, synapse, time, res=.1, rule=None, fwidth=16, fheight=9):
@@ -19,21 +19,25 @@ class Gatherer:
         self.impulses = [[] for i in self.model.show_config()['Neurons']]
         self.Is = [[] for i in self.model.show_config()['Neurons']]
         self.weights = [[] for i in self.model.show_config()['Synapses']]
+        self.spikes = [[] for i in self.model.show_config()['Neurons']]
         self.weight_index_by_edge = {}
         counter = 0
         for i in self.model.show_config()['Synapses']:
             self.weight_index_by_edge[i] = counter
             counter += 1
+        self.timer = 0
 
     def gather_stats(self):
         for i in self.model.show_config()['Neurons']:
             self.vs[i].append(self.model.neurons[i].get_voltage_dynamics())
             self.impulses[i].append(self.model.neurons[i].get_output_current())
             self.Is[i].append(self.model.neurons[i].get_input_current())
+            self.spikes[i].append(self.model.neurons[i].get_spike_status())
         counter = 0
         for w in self.model.show_config()["Synapses"]:
             self.weights[counter].append(self.model.syn_by_edge[w].get_weight())
             counter += 1
+        self.timer += res
 
     def get_stats(self, pre_ids = None, post_ids = None, weight_ids = None):
         if not pre_ids:
@@ -53,6 +57,18 @@ class Gatherer:
         post_Is = np.array(self.Is)[post_ids]
         ws = np.array(self.weights)[weight_indexes]
         return pre_vs, pre_impulses, pre_Is, post_vs, post_impulses, post_Is, ws
+    
+    def show_spike_stats(self, print_results=True):
+        num_spikes = np.sum(np.array(self.spikes[-1]))
+        step = self.timer / 1000
+        freq = round(num_spikes / step, 3)
+        if print_results:
+            print(f'Total number of spikes = {num_spikes}, avg frequency = {freq}')
+        return num_spikes, freq
+    
+    def drop_timer_and_spikes(self):
+        self.timer = 0
+        self.spikes = [[] for i in self.model.show_config()['Neurons']]
     
 def draw_stats_gatherer(pre_vs, pre_impulses, pre_Is, post_vs, post_impulses, post_Is, ws, time_range, resolution=None, fwidth=16, fheight=12):
     if not isinstance(time_range, np.ndarray) or isinstance(time_range, list):
@@ -286,3 +302,67 @@ def show_stats_many(vs, Is, spikes, t, fwidth=15, fheight=9):
     voltage.set_title('Voltage')
     cur.set_title('Input current')
     spks.set_title('Spikes')
+
+
+def barplot_annotate_brackets(num1, num2, data, center, height=None, yerr=None, dh=.05, barh=.05, fs=None, maxasterix=None):
+    # Stolen and adapted from somewhere on stackoverflow, I guess
+    # Unfortunately, I can't find the tred
+    """ 
+    Annotate barplot with p-values.
+
+    :param num1: number of left bar to put bracket over
+    :param num2: number of right bar to put bracket over
+    :param data: string to write or number for generating asterixes
+    :param center: centers of all bars (like plt.bar() input)
+    :param height: heights of all bars (like plt.bar() input)
+    :param yerr: yerrs of all bars (like plt.bar() input)
+    :param dh: height offset over bar / bar + yerr in axes coordinates (0 to 1)
+    :param barh: bar height in axes coordinates (0 to 1)
+    :param fs: font size
+    :param maxasterix: maximum number of asterixes to write (for very small p-values)
+    """
+
+    if type(data) is str:
+        text = data
+    else:
+        # * is p < 0.05
+        # ** is p < 0.005
+        # *** is p < 0.0005
+        # etc.
+        text = ''
+        p = .05
+
+        while data < p:
+            text += '*'
+            p /= 10.
+
+            if maxasterix and len(text) == maxasterix:
+                break
+
+        if len(text) == 0:
+            text = 'n. s.'
+
+    lx, ly = center[num1]+1, height[num1]
+    rx, ry = center[num2]+1, height[num2]
+
+    if yerr:
+        ly += yerr[num1]
+        ry += yerr[num2]
+
+    ax_y0, ax_y1 = plt.gca().get_ylim()
+    dh *= (ax_y1 - ax_y0)
+    barh *= (ax_y1 - ax_y0)
+
+    y = max(ly.all(), ry.all()) + dh
+
+    barx = [lx, lx, rx, rx]
+    bary = [y, y+barh, y+barh, y]
+    mid = ((lx+rx)/2, y+barh)
+
+    plt.plot(barx, bary, c='black')
+
+    kwargs = dict(ha='center', va='bottom')
+    if fs is not None:
+        kwargs['fontsize'] = fs
+
+    plt.text(*mid, text, **kwargs)

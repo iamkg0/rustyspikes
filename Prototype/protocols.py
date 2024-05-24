@@ -53,3 +53,42 @@ def test_delay_v1(model, time=1000):
             dd[d].append(model.syn_by_edge[d, 3].dd)
     draw_stats_gatherer(*gatherer.get_stats(), t)
     return model, np.array(delay), np.array(dd)
+
+
+def bfnaics24(model, aw_time, l_rule='pair_stdp', lr=.1, learning_time=1000, test_time=1000, draw_stats=True):
+    for i in range(len(model.neurons) - 1):
+        model.neurons[i].change_props(awaiting_time=aw_time[i])
+    gatherer = Gatherer(model)
+    model, gatherer = bfnaics24_train(model, gatherer, learning_time, l_rule, lr)
+    gatherer.show_spike_stats()
+    gatherer.drop_timer_and_spikes()
+    model, gatherer = bfnaics24_test(model, gatherer, test_time)
+    _, f_familiar = gatherer.show_spike_stats()
+    gatherer.drop_timer_and_spikes()
+    for i in range(len(model.neurons) - 1):
+        model.neurons[i].change_props(awaiting_time=aw_time[-i])
+    model, gatherer = bfnaics24_test(model, gatherer, test_time)
+    _, f_new = gatherer.show_spike_stats()
+    gatherer.drop_timer_and_spikes()
+    time = learning_time + test_time*2
+    t = np.arange(int(time / res)) * res
+    if draw_stats:
+        draw_stats_gatherer(*gatherer.get_stats(), t)
+    return model, gatherer, f_familiar-f_new
+
+def bfnaics24_train(model, gatherer, time, rule, lr):
+    model.set_rule_to_all(rule)
+    model.set_lr_to_all(lr)
+    t = np.arange(int(time / res)) * res
+    for i in t:
+        model.tick()
+        gatherer.gather_stats()
+    return model, gatherer
+
+def bfnaics24_test(model, gatherer, time):
+    model.set_rule_to_all(None)
+    t = np.arange(int(time / res))* res
+    for i in t:
+        model.tick()
+        gatherer.gather_stats()
+    return model, gatherer

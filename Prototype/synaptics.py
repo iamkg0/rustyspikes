@@ -124,7 +124,7 @@ class Delayed_synapse(Synapse):
         self.presynaptic = presynaptic
         self.postsynaptic = postsynaptic
         self.delay = kwargs.get('delay', 250)
-        self.max_delay = kwargs.get('max_delay', 10)
+        self.max_delay = kwargs.get('max_delay', 100)
         self.pre_impulse_queue = [0 for i in range(self.max_delay)]
         self.pre_spiked = [0 for i in range(self.max_delay)]
         self.max_delay -= 1
@@ -148,13 +148,13 @@ class Delayed_synapse(Synapse):
         dd = 0
         if self.pre_spiked[int(self.max_delay - self.delay)]:
             #print(self.postsynaptic.get_output_current())
-            dd -= (1 - self.postsynaptic.get_output_current()) * delay * lr * asymmetry
+            dd -= (1 - self.postsynaptic.get_output_current()) * self.postsynaptic.get_output_current() * delay * lr * asymmetry
             self.dd = dd
             #print(dd)
             
         if self.postsynaptic.get_spike_status():
-        #    print(self.pre_impulse_queue[int(self.max_delay - self.delay)])
-            dd += (1 - self.pre_impulse_queue[int(self.max_delay - self.delay)]) * (1 - delay) * lr * alpha
+            #print(self.pre_impulse_queue[int(self.max_delay - self.delay)])
+            dd += (1 - self.pre_impulse_queue[int(self.max_delay - self.delay)] * self.pre_impulse_queue[int(self.max_delay - self.delay)]) * (1 - delay) * lr * alpha
             self.dd = dd
             
             

@@ -5,7 +5,7 @@ def net_v0():
     5-to-1 test subject
     '''
     snn = SNNModel()
-    rt=50
+    rt=100
     scale = 10
     in0 = Spikes_at_will(awaiting_time=2, refresh_time=rt)
     in1 = Spikes_at_will(awaiting_time=6, refresh_time=rt)
@@ -66,13 +66,14 @@ def delayed_single():
 def delayed_3_to_1():
     dsnn = SNNModel()
     rt = 100
+    sc = 10
     in0 = Spikes_at_will(awaiting_time=2, refresh_time=rt, synaptic_limit=1)
-    in1 = Spikes_at_will(awaiting_time=4, refresh_time=rt, synaptic_limit=1)
-    in2 = Spikes_at_will(awaiting_time=6, refresh_time=rt, synaptic_limit=1)
+    in1 = Spikes_at_will(awaiting_time=14, refresh_time=rt, synaptic_limit=1)
+    in2 = Spikes_at_will(awaiting_time=26, refresh_time=rt, synaptic_limit=1)
     out = Izhikevich(synaptic_limit=1)
-    syn0 = Delayed_synapse(in0, out, scale=7, delay=0)
-    syn1 = Delayed_synapse(in1, out, scale=7, delay=1)
-    syn2 = Delayed_synapse(in2, out, scale=7, delay=1)
+    syn0 = Delayed_synapse(in0, out, scale=sc, delay=0)
+    syn1 = Delayed_synapse(in1, out, scale=sc, delay=0)
+    syn2 = Delayed_synapse(in2, out, scale=sc, delay=0)
     dsnn.add_neuron(in0)
     dsnn.add_neuron(in1)
     dsnn.add_neuron(in2)
@@ -82,3 +83,17 @@ def delayed_3_to_1():
     dsnn.add_synapse(syn2)
     dsnn.reload_graph()
     return dsnn
+
+def bfnaics_24_model(num_input, rt=100, scale=10):
+    snn = SNNModel()
+    neu = []
+    for i in range(num_input):
+        neu.append(Spikes_at_will(id=i, refresh_time=rt))
+        snn.add_neuron(neu[i])
+    out = Izhikevich()
+    snn.add_neuron(out)
+    for i in range(num_input):
+        syn = Synapse(neu[i], out, scale=scale)
+        snn.add_synapse(syn)
+    snn.reload_graph()
+    return snn
