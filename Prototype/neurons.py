@@ -100,7 +100,7 @@ class Izhikevich(Neuron):
         self.b = param_list[idx][1]
         self.c = param_list[idx][2]
         self.d = param_list[idx][3]
-        self.v = -80
+        self.v = -70
         self.u = self.b * self.v
         
     def dynamics(self):

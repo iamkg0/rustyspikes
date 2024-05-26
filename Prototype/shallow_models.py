@@ -66,10 +66,10 @@ def delayed_single():
 def delayed_3_to_1():
     dsnn = SNNModel()
     rt = 100
-    sc = 10
+    sc = 5
     in0 = Spikes_at_will(awaiting_time=2, refresh_time=rt, synaptic_limit=1)
-    in1 = Spikes_at_will(awaiting_time=14, refresh_time=rt, synaptic_limit=1)
-    in2 = Spikes_at_will(awaiting_time=26, refresh_time=rt, synaptic_limit=1)
+    in1 = Spikes_at_will(awaiting_time=6, refresh_time=rt, synaptic_limit=1)
+    in2 = Spikes_at_will(awaiting_time=10, refresh_time=rt, synaptic_limit=1)
     out = Izhikevich(synaptic_limit=1)
     syn0 = Delayed_synapse(in0, out, scale=sc, delay=0)
     syn1 = Delayed_synapse(in1, out, scale=sc, delay=0)
