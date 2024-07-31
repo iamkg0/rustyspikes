@@ -11,7 +11,7 @@ plt.style.use(['dark_background'])
 
 def test_prot_v0(shallow_model, time=1000):
     snn = shallow_model()
-    snn.set_rule_to_all('t_stdp_forget')
+    snn.set_rule_to_all('t_stdp')
     snn.set_lr_to_all(.1)
     gatherer = Gatherer(snn)
     t = np.arange(int(time / res)) * res
@@ -21,18 +21,35 @@ def test_prot_v0(shallow_model, time=1000):
     draw_stats_gatherer(*gatherer.get_stats(), t)
     return snn
 
-def test_delay_v0(shallow_model, time=1000):
+def test_d_single(shallow_model, time=1000):
     delay = []
     dsnn = shallow_model()
-    dsnn.set_rule_to_all(None)
+    dd = []
     gatherer = Gatherer(dsnn)
     t = np.arange(int(time/res)) * res
     for i in t:
         dsnn.tick()
         gatherer.gather_stats()
         delay.append(dsnn.syn_by_edge[0, 1].delay)
+        dd.append(dsnn.syn_by_edge[0, 1].dd)
+    print(*gatherer.get_stats(), t)
     draw_stats_gatherer(*gatherer.get_stats(), t)
-    return dsnn, delay
+    return dsnn, delay, np.array(dd)
+
+def test_delay_v0(shallow_model, time=1000):
+    delay = []
+    dsnn = shallow_model()
+    dd = []
+    #dsnn.set_rule_to_all('sophisticated_rule')
+    gatherer = Gatherer(dsnn)
+    t = np.arange(int(time/res)) * res
+    for i in t:
+        dsnn.tick()
+        gatherer.gather_stats()
+        delay.append(dsnn.syn_by_edge[0, 1].delay)
+        dd.append(dsnn.syn_by_edge[0,1].dd)
+    draw_stats_gatherer(*gatherer.get_stats(), t)
+    return dsnn, delay, np.array(dd)
 
 def test_delay_v1(model, time=1000):
     delay = [[] for i in model.show_config()['Neurons']]
@@ -66,7 +83,7 @@ def bfnaics24(model, aw_time, l_rule='pair_stdp', lr=.1, learning_time=1000, tes
     _, f_familiar = gatherer.show_spike_stats()
     gatherer.drop_timer_and_spikes()
     for i in range(len(model.neurons) - 1):
-        model.neurons[i].change_props(awaiting_time=aw_time[-i])
+        model.neurons[i].change_props(awaiting_time=aw_time[-i-1])
     model, gatherer = bfnaics24_test(model, gatherer, test_time)
     _, f_new = gatherer.show_spike_stats()
     gatherer.drop_timer_and_spikes()
@@ -74,7 +91,7 @@ def bfnaics24(model, aw_time, l_rule='pair_stdp', lr=.1, learning_time=1000, tes
     t = np.arange(int(time / res)) * res
     if draw_stats:
         draw_stats_gatherer(*gatherer.get_stats(), t)
-    return model, gatherer, f_familiar-f_new
+    return model, gatherer, f_familiar, f_new
 
 def bfnaics24_train(model, gatherer, time, rule, lr):
     model.set_rule_to_all(rule)

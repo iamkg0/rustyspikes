@@ -91,16 +91,16 @@ def draw_stats_gatherer(pre_vs, pre_impulses, pre_Is, post_vs, post_impulses, po
         post_imps = axis[4]
         post_inp_is = axis[5]
         post_voltage.plot(time_range, post_vs[j])
-        post_imps.plot(time_range, post_impulses[j])
+        post_imps.plot(time_range, post_impulses[j])    
         post_inp_is.plot(time_range, post_Is[j])
     for w in range(ws.shape[0]):
         weights = axis[6]
         weights.plot(time_range, ws[w])
     pre_voltage.set_title('Presynaptic potential')
-    pre_imps.set_title('Presynaptic synaptic output')
+    pre_imps.set_title('Presynaptic output')
     pre_inp_is.set_title('Presynaptic input current')
     post_voltage.set_title('Postsynaptic potential')
-    post_imps.set_title('Postsynaptic synaptic output')
+    post_imps.set_title('Postsynaptic output')
     post_inp_is.set_title('Postsynaptic input current')
     weights.set_title('Weight changes')
     plt.show()
