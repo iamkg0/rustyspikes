@@ -70,7 +70,7 @@ class Gatherer:
         self.timer = 0
         self.spikes = [[] for i in self.model.show_config()['Neurons']]
     
-def draw_stats_gatherer(pre_vs, pre_impulses, pre_Is, post_vs, post_impulses, post_Is, ws, time_range, resolution=None, fwidth=16, fheight=12):
+def draw_stats_gatherer(pre_vs, pre_impulses, pre_Is, post_vs, post_impulses, post_Is, ws, time_range, resolution=None, fwidth=16, fheight=12, dpi=100):
     if not isinstance(time_range, np.ndarray) or isinstance(time_range, list):
         if not resolution:
             raise Exception('I require integration step or time array')
@@ -79,6 +79,7 @@ def draw_stats_gatherer(pre_vs, pre_impulses, pre_Is, post_vs, post_impulses, po
     plt.subplots_adjust(hspace=.5)
     figure.set_figwidth(fwidth)
     figure.set_figheight(fheight)
+    figure.set_dpi(dpi)
     for i in range(pre_vs.shape[0]):
         pre_voltage = axis[0]
         pre_imps = axis[1]
