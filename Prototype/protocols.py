@@ -23,7 +23,7 @@ def test_prot_v0(shallow_model, time=1000):
 
 def test_d_single(shallow_model, time=1000):
     delay = []
-    dsnn = shallow_model()
+    dsnn = shallow_model
     dd = []
     gatherer = Gatherer(dsnn)
     t = np.arange(int(time/res)) * res
@@ -32,7 +32,7 @@ def test_d_single(shallow_model, time=1000):
         gatherer.gather_stats()
         delay.append(dsnn.syn_by_edge[0, 1].delay)
         dd.append(dsnn.syn_by_edge[0, 1].dd)
-    print(*gatherer.get_stats(), t)
+    #print(*gatherer.get_stats(), t)
     draw_stats_gatherer(*gatherer.get_stats(), t)
     return dsnn, delay, np.array(dd)
 
