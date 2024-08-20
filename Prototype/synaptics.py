@@ -141,7 +141,7 @@ class Delayed_synapse(Synapse):
         self.pre_impulse_queue.pop(0)
         self.pre_spiked.pop(0)
         self.pre_impulse_queue.append(self.presynaptic.get_output_current())
-        self.pre_spiked.append(self.postsynaptic.get_spike_status())
+        self.pre_spiked.append(self.presynaptic.get_spike_status())
         self.postsynaptic.accumulate_current(self.pre_impulse_queue[int(self.max_delay - self.delay)] * self.w * self.scale)
         self.post_impulse_queue.pop(0)
         self.post_impulse_queue.append(self.postsynaptic.get_output_current())
@@ -166,14 +166,17 @@ class Delayed_synapse(Synapse):
             
         if self.postsynaptic.get_spike_status():
             #print(self.pre_impulse_queue[int(self.max_delay - self.delay)])
-            #dd += (1 - self.pre_impulse_queue[moment]) * self.pre_impulse_queue[moment] * (1 - self.delay / self.pre_spiked_moment) * lr
+            dd += (1 - self.pre_impulse_queue[moment]) * self.pre_impulse_queue[moment] * (1 - self.delay / self.pre_spiked_moment) * lr
             #print('+, ',dd, '-, ',self.dd, f'del {delay}, pre_sp_m {self.pre_spiked_moment}')
-            self.dd = dd - 2
+            #self.dd = dd
             self.pre_spiked_moment = 0
             
             
             
         self.delay += dd
+
+    def get_delay(self):
+        return self.delay
 
 '''
     def sophisticated_rule(self, lr=.1, asymmetry=50):

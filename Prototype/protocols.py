@@ -29,7 +29,7 @@ def test_d_single(shallow_model, time=1000):
     t = np.arange(int(time/res)) * res
     for i in t:
         dsnn.tick()
-        gatherer.gather_stats()
+        gatherer.gather_stats(gather_delay=False)
         delay.append(dsnn.syn_by_edge[0, 1].delay)
         dd.append(dsnn.syn_by_edge[0, 1].dd)
     #print(*gatherer.get_stats(), t)

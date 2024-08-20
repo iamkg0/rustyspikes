@@ -24,7 +24,7 @@ class Neuron:
     Synaptic output related functions:
     '''
     def spike_decrease(self):
-        self.impulse -= self.impulse / self.tau
+        self.impulse -= (self.impulse / self.tau) * self.resolution
         self.spiked = False
         return self.impulse
     

@@ -27,16 +27,20 @@ class Gatherer:
             counter += 1
         self.timer = 0
 
-    def gather_stats(self):
+    def gather_stats(self, gather_delay=False):
         for i in self.model.show_config()['Neurons']:
             self.vs[i].append(self.model.neurons[i].get_voltage_dynamics())
             self.impulses[i].append(self.model.neurons[i].get_output_current())
             self.Is[i].append(self.model.neurons[i].get_input_current())
             self.spikes[i].append(self.model.neurons[i].get_spike_status())
         counter = 0
-        for w in self.model.show_config()["Synapses"]:
-            self.weights[counter].append(self.model.syn_by_edge[w].get_weight())
-            counter += 1
+        if not gather_delay:
+            for w in self.model.show_config()["Synapses"]:
+                self.weights[counter].append(self.model.syn_by_edge[w].get_weight())
+                counter += 1
+        if gather_delay:
+            for w in self.model.show_config()["Synapses"]:
+                self.weights[counter].append(self.model.syn_by_edge[w].get_delay)
         self.timer += res
 
     def get_stats(self, pre_ids = None, post_ids = None, weight_ids = None):
