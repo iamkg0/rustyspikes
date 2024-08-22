@@ -50,12 +50,12 @@ def single_synapse():
 def dr_single():
     snn = SNNModel()
     rt0 = 30
-    aw0 = 0
+    aw0 = 10
     rt1 = 30
-    aw1 = 10
+    aw1 = 0
     input = Spikes_at_will(awaiting_time=aw0, refresh_time=rt0, synaptic_limit=1, tau=10)
     output = Spikes_at_will(awaiting_time=aw1, refresh_time=rt1, synaptic_limit=1, tau=10)
-    syn = Delayed_synapse(input, output, scale=1, delay=170, max_delay=200)
+    syn = Delayed_synapse(input, output, scale=1, delay=70, max_delay=200)
     snn.add_neuron(input)
     snn.add_neuron(output)
     snn.add_synapse(syn)

@@ -1,3 +1,10 @@
+''' WARNING:
+    Hyperparameters might not work,
+    given the fix of synaptic output resolution.
+    In order to reproduce paper results, please,
+    divide tau value of each neuron by 10. '''
+
+
 from model import *
 from neurons import *
 from synaptics import *
