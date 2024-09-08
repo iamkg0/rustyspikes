@@ -62,6 +62,24 @@ def dr_single():
     snn.reload_graph()
     return snn
 
+
+def delayed_3to1():
+    snn = SNNModel()
+    rt = 100
+    awaitings = [1, 20, 19, 30]
+    delays = [190, 10, 210]
+    neurons = []
+    for i in awaitings:
+        n = Spikes_at_will(awaiting_time=i, refresh_time=rt, synaptic_limit=1, tau=10)
+        neurons.append(n)
+        snn.add_neuron(n)
+    for j in range(len(delays)):
+        s = Delayed_synapse(neurons[j], neurons[-1], scale=1, delay=delays[j], max_delay=300)
+        snn.add_synapse(s)
+    snn.reload_graph()
+    return snn
+
+
 def delayed_single():
     '''
     1-to-1 delayed synapse test

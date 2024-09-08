@@ -159,6 +159,7 @@ class Delayed_synapse(Synapse):
         #print(moment)
         if self.pre_spiked[moment]:
             #print(self.postsynaptic.get_output_current()) 
+            # In fact, delay gets bigger. Minus due to implementation of queue
             dd -= (1 - self.postsynaptic.get_output_current()) * self.postsynaptic.get_output_current() * delay * lr* asymmetry
             
             self.dd = dd
@@ -166,6 +167,7 @@ class Delayed_synapse(Synapse):
             
         if self.postsynaptic.get_spike_status():
             #print(self.pre_impulse_queue[int(self.max_delay - self.delay)])
+            # Vice versa, delay gets smaller
             dd += (1 - self.pre_impulse_queue[moment]) * self.pre_impulse_queue[moment] * (1 - self.delay / self.pre_spiked_moment) * lr
             #print('+, ',dd, '-, ',self.dd, f'del {delay}, pre_sp_m {self.pre_spiked_moment}')
             #self.dd = dd
