@@ -2,6 +2,7 @@ import numpy as np
 
 class Synapse:
     def __init__(self, presynaptic, postsynaptic, **kwargs):
+        self.resolution = .1 #TEMPORAL FIX
         self.presynaptic = presynaptic
         self.postsynaptic = postsynaptic
         self.scale = kwargs.get('scale', 1)
@@ -124,14 +125,21 @@ class Delayed_synapse(Synapse):
         self.presynaptic = presynaptic
         self.postsynaptic = postsynaptic
         self.delay = kwargs.get('delay', 0)
-        self.max_delay = kwargs.get('max_delay', 500)
+        self.max_delay = kwargs.get('max_delay', 50)
+        self.b = kwargs.get('b', 5)
+
+        self.delay = int(self.delay / self.resolution)
+        self.max_delay = int(self.max_delay / self.resolution)
+        self.b = int(self.b / self.resolution)
+        
         self.pre_impulse_queue = [0 for i in range(self.max_delay)]
         self.post_impulse_queue = [0 for i in range(self.max_delay)]
         self.pre_spiked = [0 for i in range(self.max_delay)]
-        self.max_delay -= 1
-        self.pre_spiked_moment = 0
-        
+        self.post_spiked_moment = 0
+        self.d_lr = kwargs.get('d_lr', 1)
 
+        
+        self.max_delay -= 1
         # Debug:
         self.dd = 0
         self.delay_debug = 0
@@ -145,37 +153,31 @@ class Delayed_synapse(Synapse):
         self.postsynaptic.accumulate_current(self.pre_impulse_queue[int(self.max_delay - self.delay)] * self.w * self.scale)
         self.post_impulse_queue.pop(0)
         self.post_impulse_queue.append(self.postsynaptic.get_output_current())
-        self.sophisticated_rule()
+        self.sophisticated_rule(d_lr=self.d_lr)
         self.learning_rules[self.learning_rule]()
 
-    def sophisticated_rule(self, lr=1, asymmetry=1):
-        delay = self.delay / self.max_delay
+    def sophisticated_rule(self, d_lr=1, asymmetry=1):
+        #delay = self.delay / self.max_delay
+        #moment = int(self.max_delay - self.delay)
+        #max_delay_d = self.max_delay - self.b
+        delay = (self.delay - self.b) / (self.max_delay)
+        moment = int(self.max_delay - self.delay - self.b)
         self.delay_debug = delay
-        moment = int(self.max_delay - self.delay) 
-        delay_moment = moment / self.max_delay
-        #print(moment, len(self.post_impulse_queue), len(self.pre_impulse_queue))
         dd = 0
-        self.pre_spiked_moment += 1
-        #print(moment)
+        self.post_spiked_moment += 1
         if self.pre_spiked[moment]:
-            #print(self.postsynaptic.get_output_current()) 
-            # In fact, delay gets bigger. Minus due to implementation of queue
-            dd -= (1 - self.postsynaptic.get_output_current()) * self.postsynaptic.get_output_current() * delay * lr* asymmetry
-            
+            dd -= (1 - self.postsynaptic.get_output_current()) * self.postsynaptic.get_output_current() * delay * asymmetry
             self.dd = dd
-            #print(self.pre_spiked_moment, delay)
             
         if self.postsynaptic.get_spike_status():
-            #print(self.pre_impulse_queue[int(self.max_delay - self.delay)])
-            # Vice versa, delay gets smaller
-            dd += (1 - self.pre_impulse_queue[moment]) * self.pre_impulse_queue[moment] * (1 - self.delay / self.pre_spiked_moment) * lr
-            #print('+, ',dd, '-, ',self.dd, f'del {delay}, pre_sp_m {self.pre_spiked_moment}')
-            #self.dd = dd
-            self.pre_spiked_moment = 0
+            dd += (1 - self.pre_impulse_queue[moment]) * self.pre_impulse_queue[moment] * (1 - delay)
+            print('+, ',dd, '-, ',self.dd, f'del {self.delay}, pre_sp_m {self.post_spiked_moment}')
+            self.dd = dd
+            self.post_spiked_moment = 0
             
             
             
-        self.delay += dd
+        self.delay += dd * d_lr
 
     def get_delay(self):
         return self.delay

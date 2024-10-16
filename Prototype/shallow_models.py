@@ -49,13 +49,26 @@ def single_synapse():
 
 def dr_single():
     snn = SNNModel()
-    rt0 = 30
+    rt0 = 20
     aw0 = 10
-    rt1 = 30
+    rt1 = 20
     aw1 = 0
     input = Spikes_at_will(awaiting_time=aw0, refresh_time=rt0, synaptic_limit=1, tau=10)
     output = Spikes_at_will(awaiting_time=aw1, refresh_time=rt1, synaptic_limit=1, tau=10)
-    syn = Delayed_synapse(input, output, scale=1, delay=70, max_delay=200)
+    syn = Delayed_synapse(input, output, scale=1, delay=7, max_delay=200)
+    snn.add_neuron(input)
+    snn.add_neuron(output)
+    snn.add_synapse(syn)
+    snn.reload_graph()
+    return snn
+
+def dr_izh_single(sc=10):
+    snn = SNNModel()
+    rt0 = 100 # msec
+    aw0 = 10 # msec
+    input = Spikes_at_will(awaiting_time=aw0, refresh_time=rt0, synaptic_limit=1, tau=10)
+    output = Izhikevich(tau=10, synaptic_limit=1)
+    syn = Delayed_synapse(input, output, scale=sc, delay=1, max_delay=100, d_lr=1)
     snn.add_neuron(input)
     snn.add_neuron(output)
     snn.add_synapse(syn)
@@ -78,6 +91,25 @@ def delayed_3to1():
         snn.add_synapse(s)
     snn.reload_graph()
     return snn
+
+def delayed_10_inputs():
+    snn = SNNModel()
+    rt = 100
+    awaitings = np.arange(10) * 10
+    delays = np.ones(10) * 100
+    neurons = []
+    for i in awaitings:
+        n = Spikes_at_will(awaiting_time=i, refresh_time=rt, synaptic_limit=1, tau=10)
+        neurons.append(n)
+        snn.add_neuron(n)
+    out = Izhikevich()
+    snn.add_neuron(out)
+    for j in range(len(delays)):
+        s = Delayed_synapse(neurons[j], out, scale=.6, refresh_time=rt, synaptic_limit=1, tau=10, delay=30, max_delay=300)
+        snn.add_synapse(s)
+    snn.reload_graph()
+    return snn
+
 
 
 def delayed_single():
