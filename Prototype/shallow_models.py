@@ -49,13 +49,13 @@ def single_synapse():
 
 def dr_single():
     snn = SNNModel()
-    rt0 = 20
-    aw0 = 10
-    rt1 = 20
-    aw1 = 0
+    rt0 = 100
+    aw0 = 1
+    rt1 = 100
+    aw1 = 10
     input = Spikes_at_will(awaiting_time=aw0, refresh_time=rt0, synaptic_limit=1, tau=10)
     output = Spikes_at_will(awaiting_time=aw1, refresh_time=rt1, synaptic_limit=1, tau=10)
-    syn = Delayed_synapse(input, output, scale=1, delay=7, max_delay=200)
+    syn = Delayed_synapse(input, output, scale=1, delay=4, max_delay=200)
     snn.add_neuron(input)
     snn.add_neuron(output)
     snn.add_synapse(syn)
@@ -65,10 +65,10 @@ def dr_single():
 def dr_izh_single(sc=10):
     snn = SNNModel()
     rt0 = 100 # msec
-    aw0 = 10 # msec
+    aw0 = 1 # msec
     input = Spikes_at_will(awaiting_time=aw0, refresh_time=rt0, synaptic_limit=1, tau=10)
     output = Izhikevich(tau=10, synaptic_limit=1)
-    syn = Delayed_synapse(input, output, scale=sc, delay=1, max_delay=100, d_lr=1)
+    syn = Delayed_synapse(input, output, scale=sc, delay=14, max_delay=100, d_lr=1)
     snn.add_neuron(input)
     snn.add_neuron(output)
     snn.add_synapse(syn)

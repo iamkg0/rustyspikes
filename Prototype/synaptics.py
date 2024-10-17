@@ -125,8 +125,8 @@ class Delayed_synapse(Synapse):
         self.presynaptic = presynaptic
         self.postsynaptic = postsynaptic
         self.delay = kwargs.get('delay', 0)
-        self.max_delay = kwargs.get('max_delay', 50)
-        self.b = kwargs.get('b', 5)
+        self.max_delay = kwargs.get('max_delay', 100)
+        self.b = kwargs.get('b', 1)
 
         self.delay = int(self.delay / self.resolution)
         self.max_delay = int(self.max_delay / self.resolution)
@@ -156,12 +156,13 @@ class Delayed_synapse(Synapse):
         self.sophisticated_rule(d_lr=self.d_lr)
         self.learning_rules[self.learning_rule]()
 
-    def sophisticated_rule(self, d_lr=1, asymmetry=1):
+    def sophisticated_rule(self, d_lr=1, asymmetry=5):
         #delay = self.delay / self.max_delay
         #moment = int(self.max_delay - self.delay)
         #max_delay_d = self.max_delay - self.b
-        delay = (self.delay - self.b) / (self.max_delay)
+        delay = (self.delay) / (self.max_delay) # !!!!!!!!!!!!!!!!!!!
         moment = int(self.max_delay - self.delay - self.b)
+        #moment_real = int(self.max_delay - self.delay)
         self.delay_debug = delay
         dd = 0
         self.post_spiked_moment += 1
@@ -171,7 +172,7 @@ class Delayed_synapse(Synapse):
             
         if self.postsynaptic.get_spike_status():
             dd += (1 - self.pre_impulse_queue[moment]) * self.pre_impulse_queue[moment] * (1 - delay)
-            print('+, ',dd, '-, ',self.dd, f'del {self.delay}, pre_sp_m {self.post_spiked_moment}')
+            #print('+, ',dd, '-, ',self.dd, f'del {self.delay}, pre_sp_m {self.post_spiked_moment}', f'del_deb {self.delay_debug}')
             self.dd = dd
             self.post_spiked_moment = 0
             
