@@ -80,7 +80,7 @@ def delayed_3to1():
     snn = SNNModel()
     rt = 100
     awaitings = [1, 20, 19, 30]
-    delays = [190, 10, 210]
+    delays = [19.0, 1.0, 21.0]
     neurons = []
     for i in awaitings:
         n = Spikes_at_will(awaiting_time=i, refresh_time=rt, synaptic_limit=1, tau=10)

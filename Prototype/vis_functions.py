@@ -89,6 +89,7 @@ def draw_stats_gatherer(pre_vs, pre_impulses, pre_Is, post_vs, post_impulses, po
         pre_imps = axis[1]
         pre_inp_is = axis[2]
         pre_voltage.plot(time_range, pre_vs[i])
+        #pre_imps.set_ylim(0, 3)
         pre_imps.plot(time_range, pre_impulses[i])
         pre_inp_is.plot(time_range, pre_Is[i])
     for j in range(post_vs.shape[0]):
@@ -96,7 +97,9 @@ def draw_stats_gatherer(pre_vs, pre_impulses, pre_Is, post_vs, post_impulses, po
         post_imps = axis[4]
         post_inp_is = axis[5]
         post_voltage.plot(time_range, post_vs[j])
+        #post_imps.set_ylim(0, 3)
         post_imps.plot(time_range, post_impulses[j])    
+        #post_inp_is.set_ylim(0,3)
         post_inp_is.plot(time_range, post_Is[j])
     for w in range(ws.shape[0]):
         weights = axis[6]

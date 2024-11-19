@@ -6,7 +6,7 @@ from shallow_models import *
 from vis_functions import *
 from pyvis.network import Network
 res = .1
-plt.style.use(['dark_background'])
+#plt.style.use(['dark_background'])
 
 
 def test_prot_v0(shallow_model, time=1000):

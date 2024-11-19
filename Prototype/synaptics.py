@@ -2,6 +2,7 @@ import numpy as np
 
 class Synapse:
     def __init__(self, presynaptic, postsynaptic, **kwargs):
+        self.inhibitory = kwargs.get('inhibitory', False)
         self.resolution = .1 #TEMPORAL FIX
         self.presynaptic = presynaptic
         self.postsynaptic = postsynaptic
@@ -10,7 +11,7 @@ class Synapse:
         self.slow_tau = kwargs.get('slow_tau', 100)
         self.forget_tau = kwargs.get('forget_tau', 100)
         #self.w = np.random.uniform(0.4, .6)
-        self.w = 1
+        self.w = kwargs.get('w', 1)
         self.slow_variable_limit = kwargs.get('slow_variable_limit', False)
         if self.slow_variable_limit:
             self.slow_var_choice = self.slow_var_limited
@@ -26,7 +27,10 @@ class Synapse:
 
 
     def forward(self):
-        self.postsynaptic.accumulate_current(self.presynaptic.get_output_current() * self.w * self.scale)
+        if self.inhibitory:
+            self.postsynaptic.accumulate_current(-1 * self.presynaptic.get_output_current() * self.w * self.scale)
+        else:
+            self.postsynaptic.accumulate_current(self.presynaptic.get_output_current() * self.w * self.scale)
         self.learning_rules[self.learning_rule]()
 
     def forgetting(self):
@@ -126,7 +130,7 @@ class Delayed_synapse(Synapse):
         self.postsynaptic = postsynaptic
         self.delay = kwargs.get('delay', 0)
         self.max_delay = kwargs.get('max_delay', 100)
-        self.b = kwargs.get('b', 1)
+        self.b = kwargs.get('b', 4.4)
 
         self.delay = int(self.delay / self.resolution)
         self.max_delay = int(self.max_delay / self.resolution)
