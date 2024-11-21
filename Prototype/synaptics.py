@@ -173,12 +173,20 @@ class Delayed_synapse(Synapse):
         if self.pre_spiked[moment]:
             dd -= (1 - self.postsynaptic.get_output_current()) * self.postsynaptic.get_output_current() * delay * asymmetry
             self.dd = dd
-            
+            #self.b += np.tanh(self.postsynaptic.get_input_current())
+
         if self.postsynaptic.get_spike_status():
             dd += (1 - self.pre_impulse_queue[moment]) * self.pre_impulse_queue[moment] * (1 - delay)
             #print('+, ',dd, '-, ',self.dd, f'del {self.delay}, pre_sp_m {self.post_spiked_moment}', f'del_deb {self.delay_debug}')
             self.dd = dd
             self.post_spiked_moment = 0
+
+            b_delay = (self.delay + self.b) / self.max_delay
+            scaled_post_I = self.postsynaptic.get_input_current() / (self.scale * self.w)
+            delta_b = (self.pre_impulse_queue[moment] - scaled_post_I) * b_delay
+            self.b += delta_b
+            print('pre_imp_m', round(self.pre_impulse_queue[moment], 4), '|| post_I', round(self.postsynaptic.get_input_current() / self.scale, 4),
+                  '|| b', round(self.b, 4), '|| delta_b', round(delta_b, 4), '|| delay', round(self.delay, 4))
             
             
             

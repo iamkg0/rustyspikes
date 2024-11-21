@@ -25,6 +25,7 @@ def test_d_single(shallow_model, time=1000):
     delay = []
     dsnn = shallow_model
     dd = []
+    b = []
     gatherer = Gatherer(dsnn)
     t = np.arange(int(time/res)) * res
     for i in t:
@@ -32,9 +33,10 @@ def test_d_single(shallow_model, time=1000):
         gatherer.gather_stats(gather_delay=False)
         delay.append(dsnn.syn_by_edge[0, 1].delay)
         dd.append(dsnn.syn_by_edge[0, 1].dd)
+        b.append(dsnn.syn_by_edge[0, 1].b)
     #print(*gatherer.get_stats(), t)
     draw_stats_gatherer(*gatherer.get_stats(), t)
-    return dsnn, delay, np.array(dd)
+    return dsnn, delay, np.array(dd), np.array(b)*res
 
 
 def ER_conf(shallow_model, time=10000):

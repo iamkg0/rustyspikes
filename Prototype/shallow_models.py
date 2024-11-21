@@ -68,7 +68,7 @@ def dr_izh_single(sc=10):
     aw0 = 1 # msec
     input = Spikes_at_will(awaiting_time=aw0, refresh_time=rt0, synaptic_limit=1, tau=10)
     output = Izhikevich(tau=10, synaptic_limit=1)
-    syn = Delayed_synapse(input, output, scale=sc, delay=14, max_delay=100, d_lr=1)
+    syn = Delayed_synapse(input, output, scale=sc, delay=5, max_delay=100, d_lr=1, b=7.4) #d_lr changed!!!
     snn.add_neuron(input)
     snn.add_neuron(output)
     snn.add_synapse(syn)
@@ -117,11 +117,11 @@ def delayed_single():
     1-to-1 delayed synapse test
     '''
     dsnn = SNNModel()
-    rt = 20
+    rt = 100
     input = Spikes_at_will(awaiting_time=10, refresh_time=rt, synaptic_limit=1)
     #output = Spikes_at_will(awaiting_time=15, refresh_time=rt, synaptic_limit=1)
     output = Izhikevich()
-    d_syn = Delayed_synapse(input, output, scale = 15, delay=50)
+    d_syn = Delayed_synapse(input, output, scale = 15, delay=5)
     dsnn.add_neuron(input)
     dsnn.add_neuron(output)
     dsnn.add_synapse(d_syn)
@@ -131,7 +131,7 @@ def delayed_single():
 def delayed_3_to_1():
     dsnn = SNNModel()
     rt = 100
-    sc = 5
+    sc = 3
     in0 = Spikes_at_will(awaiting_time=2, refresh_time=rt, synaptic_limit=1)
     in1 = Spikes_at_will(awaiting_time=6, refresh_time=rt, synaptic_limit=1)
     in2 = Spikes_at_will(awaiting_time=10, refresh_time=rt, synaptic_limit=1)
