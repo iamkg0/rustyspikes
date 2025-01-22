@@ -130,7 +130,7 @@ class Delayed_synapse(Synapse):
         self.postsynaptic = postsynaptic
         self.delay = kwargs.get('delay', 0)
         self.max_delay = kwargs.get('max_delay', 100)
-        self.b = kwargs.get('b', 4.4)
+        self.b = kwargs.get('b', 0)
 
         self.delay = int(self.delay / self.resolution)
         self.max_delay = int(self.max_delay / self.resolution)
@@ -164,7 +164,7 @@ class Delayed_synapse(Synapse):
         #delay = self.delay / self.max_delay
         #moment = int(self.max_delay - self.delay)
         #max_delay_d = self.max_delay - self.b
-        delay = (self.delay) / (self.max_delay) # !!!!!!!!!!!!!!!!!!!
+        delay = self.delay / self.max_delay # !!!!!!!!!!!!!!!!!!!
         moment = int(self.max_delay - self.delay - self.b)
         #moment_real = int(self.max_delay - self.delay)
         self.delay_debug = delay
@@ -180,14 +180,15 @@ class Delayed_synapse(Synapse):
             #print('+, ',dd, '-, ',self.dd, f'del {self.delay}, pre_sp_m {self.post_spiked_moment}', f'del_deb {self.delay_debug}')
             self.dd = dd
             self.post_spiked_moment = 0
-
-            b_delay = (self.delay + self.b) / self.max_delay
+            '''
+            b_delay = (self.b) / (self.max_delay)
             scaled_post_I = self.postsynaptic.get_input_current() / (self.scale * self.w)
-            delta_b = (self.pre_impulse_queue[moment] - scaled_post_I) * b_delay
+            delta_b = 2*(self.pre_impulse_queue[moment] - scaled_post_I) * b_delay - 1
             self.b += delta_b
+            
             print('pre_imp_m', round(self.pre_impulse_queue[moment], 4), '|| post_I', round(self.postsynaptic.get_input_current() / self.scale, 4),
                   '|| b', round(self.b, 4), '|| delta_b', round(delta_b, 4), '|| delay', round(self.delay, 4))
-            
+            '''
             
             
         self.delay += dd * d_lr

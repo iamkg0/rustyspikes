@@ -55,20 +55,20 @@ def dr_single():
     aw1 = 10
     input = Spikes_at_will(awaiting_time=aw0, refresh_time=rt0, synaptic_limit=1, tau=10)
     output = Spikes_at_will(awaiting_time=aw1, refresh_time=rt1, synaptic_limit=1, tau=10)
-    syn = Delayed_synapse(input, output, scale=1, delay=4, max_delay=200)
+    syn = Delayed_synapse(input, output, scale=1, delay=7.4, max_delay=200)
     snn.add_neuron(input)
     snn.add_neuron(output)
     snn.add_synapse(syn)
     snn.reload_graph()
     return snn
 
-def dr_izh_single(sc=10):
+def dr_izh_single(sc=7):
     snn = SNNModel()
     rt0 = 100 # msec
     aw0 = 1 # msec
     input = Spikes_at_will(awaiting_time=aw0, refresh_time=rt0, synaptic_limit=1, tau=10)
     output = Izhikevich(tau=10, synaptic_limit=1)
-    syn = Delayed_synapse(input, output, scale=sc, delay=5, max_delay=100, d_lr=1, b=7.4) #d_lr changed!!!
+    syn = Delayed_synapse(input, output, scale=sc, delay=5, max_delay=100, d_lr=1, b=7.4)
     snn.add_neuron(input)
     snn.add_neuron(output)
     snn.add_synapse(syn)
@@ -128,17 +128,20 @@ def delayed_single():
     dsnn.reload_graph()
     return dsnn
 
-def delayed_3_to_1():
+def delayed_3_to_1(out_type='SAW'):
     dsnn = SNNModel()
     rt = 100
     sc = 3
     in0 = Spikes_at_will(awaiting_time=2, refresh_time=rt, synaptic_limit=1)
     in1 = Spikes_at_will(awaiting_time=6, refresh_time=rt, synaptic_limit=1)
     in2 = Spikes_at_will(awaiting_time=10, refresh_time=rt, synaptic_limit=1)
-    out = Izhikevich(synaptic_limit=1)
-    syn0 = Delayed_synapse(in0, out, scale=sc, delay=0)
-    syn1 = Delayed_synapse(in1, out, scale=sc, delay=0)
-    syn2 = Delayed_synapse(in2, out, scale=sc, delay=0)
+    if out_type == 'IZH':
+        out = Izhikevich(synaptic_limit=1)
+    if out_type == 'SAW':
+        out = Spikes_at_will(awaiting_time=13, refresh_time=rt, synaptic_limit=1)
+    syn0 = Delayed_synapse(in0, out, scale=sc, delay=1)
+    syn1 = Delayed_synapse(in1, out, scale=sc, delay=1)
+    syn2 = Delayed_synapse(in2, out, scale=sc, delay=1)
     dsnn.add_neuron(in0)
     dsnn.add_neuron(in1)
     dsnn.add_neuron(in2)
