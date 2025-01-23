@@ -84,12 +84,12 @@ class SNNModel:
         for syns in self.syn_by_edge:
             self.graph[self.neurons[syns[0]]][self.neurons[syns[1]]]['weight'] = self.syn_by_edge[syns].get_weight()
 
-    def tick(self):
+    def tick(self, freeze_delays=False):
         for i in self.neurons:
             self.neurons[i].dynamics()
             self.neurons[i].apply_cum_current()
         for j in self.syn_by_edge:
-            self.syn_by_edge[j].forward()
+            self.syn_by_edge[j].forward(freeze_delays)
 
     def add_neuron(self, neuron, id=None):
         '''
