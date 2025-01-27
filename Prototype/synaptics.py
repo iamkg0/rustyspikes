@@ -178,7 +178,7 @@ class Delayed_synapse(Synapse):
 
         if self.postsynaptic.get_spike_status():
             dd += (1 - self.pre_impulse_queue[moment]) * self.pre_impulse_queue[moment] * (1 - delay)
-            print('+, ',dd, '-, ',self.dd, f'del {self.delay}, pre_sp_m {self.post_spiked_moment}', f'del_deb {self.delay_debug}')
+            #print('+, ',dd, '-, ',self.dd, f'del {self.delay}, pre_sp_m {self.post_spiked_moment}', f'del_deb {self.delay_debug}')
             self.dd = dd
             self.post_spiked_moment = 0
             '''

@@ -9,7 +9,7 @@ class SNNModel:
                                  "Izhikevich": Izhikevich,
                                  "Probability_neuron": Probability_neuron}
         self.types_of_synapses = {"Vanilla": Synapse,
-                                  "Delayed": None}
+                                  "Delayed": False}
         self.types_of_connections = {"FC": self.fc,
                                      "Rand": self.rc}
         self.layers = {}
