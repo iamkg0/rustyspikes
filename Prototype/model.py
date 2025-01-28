@@ -136,7 +136,6 @@ class SNNModel:
             ids = [i for i in self.syn_by_edge.keys()]
         for syn in ids:
             self.syn_by_edge[syn].d_lr = d_lr
-            print(self.syn_by_edge[syn].d_lr)
 
     '''
     Misc:

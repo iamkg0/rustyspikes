@@ -136,10 +136,12 @@ def exp22(sc=7, num_inputs=10, tau=10, synaptic_limit=1):
 '''
 THE PROTOCOL
 '''
-def run_protocol(model, sampler, num_patterns=3, sample_time=150, interval=6, runs=3, lr=.1,
+def run_protocol(model, sampler, num_patterns=3, sample_time=150, interval=6, runs=3, lr=.1, d_lr=None,
                  freeze_delays=False, gather_data=False, plot=False, plast_type=None, return_gatherer=False):
     model.set_rule_to_all(plast_type)
     model.set_lr_to_all(lr)
+    if d_lr:
+        model.set_d_lr(d_lr)
     delay = [[] for i in range(len(model.show_config()['Neurons'])-1)]
     dd = [[] for i in range(len(model.show_config()['Neurons'])-1)]
     if gather_data:
