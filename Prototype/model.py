@@ -120,6 +120,18 @@ class SNNModel:
         for i in self.syn_by_edge:
             self.syn_by_edge[i].change_lr(lr)
 
+    def set_noise(self, noise=0):
+        for i in self.neurons.keys():
+            self.neurons[i].noise = noise
+
+    def set_random_weights(self, ranges=(0,1)):
+        for i in self.synapses.keys():
+            self.synapses[i].w = np.uniform(*ranges)
+
+    def set_weight_manually(self, id, weight):
+        self.synapses[id].set_weight_manually(weight)
+        
+
     '''
     Misc:
     '''
