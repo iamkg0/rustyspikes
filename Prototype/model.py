@@ -14,7 +14,7 @@ class SNNModel:
                                      "Rand": self.rc}
         self.layers = {}
         self.neurons = {}
-        self.synapses = {}
+        #self.synapses = {}
         self.l_rules = {}
         self.syn_by_edge = {}
         self.graph = nx.DiGraph()
@@ -125,12 +125,18 @@ class SNNModel:
             self.neurons[i].noise = noise
 
     def set_random_weights(self, ranges=(0,1)):
-        for i in self.synapses.keys():
-            self.synapses[i].w = np.uniform(*ranges)
+        for i in self.syn_by_edge.keys():
+            self.syn_by_edge[i].w = np.uniform(*ranges)
 
     def set_weight_manually(self, id, weight):
-        self.synapses[id].set_weight_manually(weight)
-        
+        self.syn_by_edge[id].set_weight_manually(weight)
+
+    def set_d_lr(self, d_lr, ids=None):
+        if not ids:
+            ids = [i for i in self.syn_by_edge.keys()]
+        for syn in ids:
+            self.syn_by_edge[syn].d_lr = d_lr
+            print(self.syn_by_edge[syn].d_lr)
 
     '''
     Misc:
