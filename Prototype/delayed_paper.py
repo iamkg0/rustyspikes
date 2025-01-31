@@ -137,13 +137,15 @@ def exp22(sc=7, num_inputs=10, tau=10, synaptic_limit=1):
 THE PROTOCOL
 '''
 def run_protocol(model, sampler, num_patterns=3, sample_time=150, interval=6, runs=3, lr=.1, d_lr=None,
-                 freeze_delays=False, gather_data=False, plot=False, plast_type=None, return_gatherer=False):
+                 freeze_delays=False, gather_data=False, plot=False, plast_type=None, return_gatherer=False, gather_delays=True):
     model.set_rule_to_all(plast_type)
     model.set_lr_to_all(lr)
     if d_lr:
         model.set_d_lr(d_lr)
     delay = [[] for i in range(len(model.show_config()['Neurons'])-1)]
     dd = [[] for i in range(len(model.show_config()['Neurons'])-1)]
+    num_spikes = [0 for i in range(len(sampler))]
+
     if gather_data:
         gatherer = Gatherer(model)
     for run in range(runs):
@@ -156,17 +158,20 @@ def run_protocol(model, sampler, num_patterns=3, sample_time=150, interval=6, ru
                 aw += interval
             for t in np.arange(int(sample_time/res)) * res:
                 model.tick(freeze_delays=freeze_delays)
+                if model.neurons[0].get_spike_status():
+                    num_spikes[p] += 1
                 if gather_data:
                     gatherer.gather_stats()
-                    if not freeze_delays:
+                if not freeze_delays:
+                    if gather_delays:
                         for edge in range(1, len(model.show_config()['Neurons'])):
                             #print(np.array(delay).shape, np.array(dd).shape)
                             delay[edge-1].append(model.syn_by_edge[edge,0].delay)
                             dd[edge-1].append(model.syn_by_edge[edge,0].dd)
-    if plot:
+    if plot and gather_data:
         draw_stats_gatherer(*gatherer.get_stats(pre_ids=list(range(1, len(model.show_config()['Neurons']))),
                                                 post_ids=[0]), time_range=sample_time*runs*(len(sampler)), resolution=res)
-    if return_gatherer:
-        return model, np.array(delay), np.array(dd), gatherer
+    if return_gatherer and gather_data:
+        return model, np.array(delay), np.array(dd), np.array(num_spikes), gatherer
     else:
-        return model, np.array(delay), np.array(dd)
+        return model, np.array(delay), np.array(dd), np.array(num_spikes)
