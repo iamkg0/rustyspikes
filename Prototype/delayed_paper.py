@@ -148,9 +148,10 @@ def run_protocol(model, sampler, num_patterns=3, sample_time=150, interval=6, ru
 
     if gather_data:
         gatherer = Gatherer(model)
-    for run in range(runs):
-        for p in range(len(sampler)):
-            sample = sampler[p]
+
+    for p in range(len(sampler)):
+        sample = sampler[p]
+        for run in range(runs):
             aw = 1
             for neu in sample:
                 model.neurons[neu].awaiting_time = aw
