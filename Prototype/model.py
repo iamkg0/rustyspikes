@@ -20,6 +20,7 @@ class SNNModel:
         self.graph = nx.DiGraph()
         self.color_map = []
         self.color_set = kwargs.get("color_set", ("red", "green", "blue", "yellow", "cyan", "pink", "brown"))
+        self.output_neurons = []
 
         '''
         Get info:
@@ -47,6 +48,38 @@ class SNNModel:
     
     def get_neurons_by_edge(self, edge):
         return self.neurons[edge[0]], self.neurons[edge[1]]
+
+    def get_presyn_neurons(self, id):
+        '''
+        Finds presynaptic neurons by id
+        Returns list of ids
+        '''
+        pres = []
+        for i in self.syn_by_edge.values():
+            if i[1] == id:
+                pres.append(i[0])
+        return pres
+    
+    def get_postsyn_neurons(self, id):
+        '''
+        Finds postsynaptic neurons by id
+        Returns list of ids
+        '''
+        posts = []
+        for i in self.syn_by_edge.values():
+            if i[0] == id:
+                posts.append(i[1])
+        return posts
+    
+    def get_neighbors(self, id):
+        '''
+        Finds all connected neurons
+        Returns list of ids
+        '''
+        pres = self.get_presyn_neurons(id)
+        posts = self.get_postsyn_neurons(id)
+        return [*pres, *posts]
+
    
     '''
     Handling the model:
@@ -136,6 +169,21 @@ class SNNModel:
             ids = [i for i in self.syn_by_edge.keys()]
         for syn in ids:
             self.syn_by_edge[syn].d_lr = d_lr
+
+    def define_output(self, ids):
+        self.output_neurons = ids
+
+    
+    '''
+    SpikeProp algorithm
+    '''
+    def spikeprop(self, timings_x, timings_d, lr=0.01):
+        delta = self.calculate_delta_output(self.syn_by_edge[-1])
+
+    def calculate_delta_output(self, timings_d, ids):
+        delta = (timings_d)
+
+    
 
     '''
     Misc:
