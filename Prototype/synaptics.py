@@ -162,19 +162,14 @@ class Delayed_synapse(Synapse):
         self.learning_rules[self.learning_rule]()
 
     def sophisticated_rule(self, d_lr=1, asymmetry=5):
-        #delay = self.delay / self.max_delay
-        #moment = int(self.max_delay - self.delay)
-        #max_delay_d = self.max_delay - self.b
         delay = self.delay / self.max_delay # !!!!!!!!!!!!!!!!!!!
         moment = int(self.max_delay - self.delay - self.b)
-        #moment_real = int(self.max_delay - self.delay)
         self.delay_debug = delay
         dd = 0
         self.post_spiked_moment += 1
         if self.pre_spiked[moment]:
             dd -= (1 - self.postsynaptic.get_output_current()) * self.postsynaptic.get_output_current() * delay * asymmetry
             self.dd = dd # FOR DEBUG
-            #self.b += np.tanh(self.postsynaptic.get_input_current())
             self.delay += dd * d_lr
 
         if self.postsynaptic.get_spike_status():
@@ -182,63 +177,10 @@ class Delayed_synapse(Synapse):
             #print('+, ',dd, '-, ',self.dd, f'del {self.delay}, pre_sp_m {self.post_spiked_moment}', f'del_deb {self.delay_debug}')
             self.dd = dd # FOR DEBUG
             self.post_spiked_moment = 0
-            self.delay += dd * d_lr
-            '''
-            b_delay = (self.b) / (self.max_delay)
-            scaled_post_I = self.postsynaptic.get_input_current() / (self.scale * self.w)
-            delta_b = 2*(self.pre_impulse_queue[moment] - scaled_post_I) * b_delay - 1
-            self.b += delta_b
-            
-            print('pre_imp_m', round(self.pre_impulse_queue[moment], 4), '|| post_I', round(self.postsynaptic.get_input_current() / self.scale, 4),
-                  '|| b', round(self.b, 4), '|| delta_b', round(delta_b, 4), '|| delay', round(self.delay, 4))
-            '''
-            
-            
-        
+            self.delay += dd * d_lr        
+
+
 
     def get_delay(self):
         return self.delay
 
-'''
-    def sophisticated_rule(self, lr=.1, asymmetry=50):
-        delay = self.delay / self.max_delay
-        self.delay_debug = delay
-        dd = 0
-        if self.presynaptic.get_spike_status():
-            dd -= (1 - self.postsynaptic.get_output_current()) * delay * lr * asymmetry
-            self.dd = dd
-        if self.postsynaptic.get_spike_status():
-            dd += (1 - self.presynaptic.get_output_current()) * (1 - delay) * lr
-            self.dd = dd
-        self.delay += dd
-
-
-    def sophisticated_rule(self, lr=.1, asymmetry=50):
-        delay = self.delay / self.max_delay
-        self.delay_debug = delay
-        dd = 0
-        if self.presynaptic.get_spike_status():
-            dd -= (1 - self.postsynaptic.get_output_current()) * delay * lr * asymmetry
-            self.dd = dd
-        if self.postsynaptic.get_spike_status():
-            dd += (1 - self.pre_impulse_queue[int(self.max_delay - self.delay)]) * (1 - delay) * lr
-            self.dd = dd
-        self.delay += dd
-
-
-    def sophisticated_rule(self, lr=1, asymmetry=1, alpha = 1):
-        delay = self.delay / self.max_delay
-        self.delay_debug = delay
-        moment = int(self.max_delay - self.delay)
-        dd = 0
-        if self.pre_spiked[int(self.max_delay - self.delay)]:
-            #print(self.postsynaptic.get_output_current())
-            #dd -= (1 - self.postsynaptic.get_output_current()) * (self.postsynaptic.get_output_current() - .1) * delay * lr * asymmetry
-            self.dd = dd
-            #print(dd)
-            
-        if self.postsynaptic.get_spike_status():
-            #print(self.pre_impulse_queue[int(self.max_delay - self.delay)])
-            dd += (1 - self.pre_impulse_queue[moment]) * self.pre_impulse_queue[moment] * (1 - delay) * lr * alpha
-            self.dd = dd
-'''
