@@ -68,7 +68,7 @@ class SNNModel:
         Returns list of ids
         '''
         posts = []
-        for i in self.syn_by_edge.values():
+        for i in self.syn_by_edge.keys():
             if i[0] == id:
                 posts.append(i[1])
         return posts
@@ -86,10 +86,22 @@ class SNNModel:
         return self.output_neurons
     
     def get_input_synapses(self, id):
+        '''
+        Returns list of adresses of synapses (objects, not ids!!!)
+        with presynaptic neurons. In other words, gets input
+        connections
+        '''
         synapses = []
         presyn_neurons_ids = self.get_presyn_neurons_ids(id)
         for i in presyn_neurons_ids:
             synapses.append(self.syn_by_edge[(i, id)])
+        return synapses
+    
+    def get_output_synapses(self, id):
+        synapses = []
+        postsyn_neurons_ids = self.get_postsyn_neurons_ids(id)
+        for i in postsyn_neurons_ids:
+            synapses.append(self.syn_by_edge[(id, i)])
         return synapses
 
    
