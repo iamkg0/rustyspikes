@@ -20,7 +20,9 @@ class SNNModel:
         self.graph = nx.DiGraph()
         self.color_map = []
         self.color_set = kwargs.get("color_set", ("red", "green", "blue", "yellow", "cyan", "pink", "brown"))
-        self.output_neurons = []
+
+        self.output_neurons = {}
+        self.preoutput_synapses = {}
 
         '''
         Get info:
@@ -49,18 +51,18 @@ class SNNModel:
     def get_neurons_by_edge(self, edge):
         return self.neurons[edge[0]], self.neurons[edge[1]]
 
-    def get_presyn_neurons(self, id):
+    def get_presyn_neurons_ids(self, id):
         '''
         Finds presynaptic neurons by id
         Returns list of ids
         '''
         pres = []
-        for i in self.syn_by_edge.values():
+        for i in self.syn_by_edge.keys():
             if i[1] == id:
                 pres.append(i[0])
         return pres
     
-    def get_postsyn_neurons(self, id):
+    def get_postsyn_neurons_ids(self, id):
         '''
         Finds postsynaptic neurons by id
         Returns list of ids
@@ -71,14 +73,24 @@ class SNNModel:
                 posts.append(i[1])
         return posts
     
-    def get_neighbors(self, id):
+    def get_neighbors_ids(self, id):
         '''
-        Finds all connected neurons
+        Finds all neurons connected to a specific one
         Returns list of ids
         '''
         pres = self.get_presyn_neurons(id)
         posts = self.get_postsyn_neurons(id)
         return [*pres, *posts]
+    
+    def get_output_neurons(self):
+        return self.output_neurons
+    
+    def get_input_synapses(self, id):
+        synapses = []
+        presyn_neurons_ids = self.get_presyn_neurons_ids(id)
+        for i in presyn_neurons_ids:
+            synapses.append(self.syn_by_edge[(i, id)])
+        return synapses
 
    
     '''
@@ -171,13 +183,21 @@ class SNNModel:
             self.syn_by_edge[syn].d_lr = d_lr
 
     def define_output(self, ids):
-        self.output_neurons = ids
+        for id in ids:
+            self.output_neurons[id] = self.neurons[id]
+        #########
+            ############
+            ###########
 
     
     '''
     SpikeProp algorithm
     '''
-    def spikeprop(self, timings_x, timings_d, lr=0.01):
+    def spikeprop(self, timings_d, lr=0.01):
+        '''
+        timings_d - array of desired timings
+        '''
+        timings_j_a = self.syn_by_edge[-1]
         delta = self.calculate_delta_output(self.syn_by_edge[-1])
 
     def calculate_delta_output(self, timings_d, ids):
@@ -320,7 +340,7 @@ class SNNModel:
 
     def empty_function(self):
         '''
-        Helps to avoid if-else statesments. Lmao
+        Helps to avoid if-else statements. Lmao
         '''
         pass
 
@@ -329,7 +349,7 @@ class SNNModel:
     '''    
     def spit_for_pyvis(self):
         '''
-        Returns a graph that is consumable by pyvis
+        Returns a graph that is digestable for pyvis
         '''
         new_graph = nx.DiGraph()
         for i in self.neurons:
