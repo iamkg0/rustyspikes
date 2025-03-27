@@ -85,7 +85,7 @@ class SNNModel:
     def get_output_neurons(self):
         return self.output_neurons
     
-    def get_input_synapses(self, id):
+    def get_incoming_synapses(self, id):
         '''
         Returns list of adresses of synapses (objects, not ids!!!)
         with presynaptic neurons. In other words, gets input
@@ -97,7 +97,7 @@ class SNNModel:
             synapses.append(self.syn_by_edge[(i, id)])
         return synapses
     
-    def get_output_synapses(self, id):
+    def get_outgoing_synapses(self, id):
         synapses = []
         postsyn_neurons_ids = self.get_postsyn_neurons_ids(id)
         for i in postsyn_neurons_ids:
@@ -197,9 +197,8 @@ class SNNModel:
     def define_output(self, ids):
         for id in ids:
             self.output_neurons[id] = self.neurons[id]
-        #########
-            ############
-            ###########
+        for i in self.output_neurons.keys():
+            self.preoutput_synapses[i] = self.get_incoming_synapses(i)
 
     
     '''
