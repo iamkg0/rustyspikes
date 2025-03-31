@@ -208,11 +208,16 @@ class SNNModel:
         '''
         timings_d - array of desired timings
         '''
-        timings_j_a = self.syn_by_edge[-1]
-        delta = self.calculate_delta_output(self.syn_by_edge[-1])
+        pass
 
     def calculate_delta_output(self, timings_d, ids):
-        delta = (timings_d)
+        d = (timings_d - self.find_latest_spike_timings_post)
+
+    def find_latest_spike_timings_output(self, ids):
+        t_a = []
+        for neu_id in self.preoutput_synapses.keys():
+            t_a.append(self.preoutput_synapses[neu_id][0].get_latest_spike_timing_post())
+        return np.array(t_a)
 
     
 

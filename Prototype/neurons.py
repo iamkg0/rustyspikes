@@ -115,6 +115,23 @@ class Izhikevich(Neuron):
         return self.impulse
 
 
+class LIF(Neuron):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.lif_tau = kwargs.get('tau', 30)
+        self.v = 0
+        self.v_eq = 0
+        self.ap_threshold = kwargs.get('ap_threshold', 1)
+
+    def dynamics(self):
+        self.v -= (self.v - self.v_eq)/self.lif_tau + self.I
+        if self.v >= self.ap_threshold:
+            self.v = self.v_eq
+            self.spike_trace_choice()
+        else:
+            self.spike_decrease()
+
+
 
 class Probability_neuron(Neuron):
     def __init__(self, **kwargs):
