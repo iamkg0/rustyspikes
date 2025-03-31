@@ -165,3 +165,19 @@ def bfnaics_24_model(num_input, rt=100, scale=10):
         snn.add_synapse(syn)
     snn.reload_graph()
     return snn
+
+
+
+def lif_test(num_input=10, rt=100, scale=1):
+    snn = SNNModel()
+    neu = []
+    for i in range(num_input):
+        neu.append(Spikes_at_will(id=i, refresh_time=rt, awaiting_time = i*5))
+        snn.add_neuron(neu[i])
+    out = LIF(id=i+1)
+    snn.add_neuron(out)
+    for i in range(num_input):
+        syn = Synapse(neu[i], out, scale=scale)
+        snn.add_synapse(syn)
+    snn.reload_graph()
+    return snn

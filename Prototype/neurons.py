@@ -119,17 +119,18 @@ class LIF(Neuron):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.lif_tau = kwargs.get('tau', 30)
-        self.v = 0
-        self.v_eq = 0
-        self.ap_threshold = kwargs.get('ap_threshold', 1)
+        self.v = -70
+        self.v_eq = -70
+        self.ap_threshold = kwargs.get('ap_threshold', -55)
 
     def dynamics(self):
-        self.v -= (self.v - self.v_eq)/self.lif_tau + self.I
+        self.v += self.resolution * (self.v - self.v_eq + self.I)/self.lif_tau
         if self.v >= self.ap_threshold:
             self.v = self.v_eq
             self.spike_trace_choice()
         else:
             self.spike_decrease()
+        return self.impulse
 
 
 
