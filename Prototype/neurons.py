@@ -124,7 +124,7 @@ class LIF(Neuron):
         self.v = -70
 
     def dynamics(self):
-        self.v += self.resolution * (self.v - self.v_eq + self.I)/self.lif_tau
+        self.v += self.resolution * (-self.v + self.v_eq + self.I)/self.lif_tau
         if self.v >= self.ap_threshold:
             self.v = self.v_eq
             self.spike_trace_choice()

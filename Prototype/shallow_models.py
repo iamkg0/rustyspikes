@@ -168,11 +168,11 @@ def bfnaics_24_model(num_input, rt=100, scale=10):
 
 
 
-def lif_test(num_input=10, rt=100, scale=1):
+def lif_test(num_input=10, rt=100, scale=1, aw=5):
     snn = SNNModel()
     neu = []
     for i in range(num_input):
-        neu.append(Spikes_at_will(id=i, refresh_time=rt, awaiting_time = i*5))
+        neu.append(Spikes_at_will(id=i, refresh_time=rt, awaiting_time = i*aw))
         snn.add_neuron(neu[i])
     out = LIF(id=i+1)
     snn.add_neuron(out)
