@@ -119,9 +119,9 @@ class LIF(Neuron):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.lif_tau = kwargs.get('tau', 30)
-        self.v = -70
-        self.v_eq = -70
+        self.v_eq = kwargs.get('v_eq', -70)
         self.ap_threshold = kwargs.get('ap_threshold', -55)
+        self.v = -70
 
     def dynamics(self):
         self.v += self.resolution * (self.v - self.v_eq + self.I)/self.lif_tau
@@ -138,7 +138,6 @@ class Probability_neuron(Neuron):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.v = 0
-
 
     def dynamics(self):
         self.v = random.choices([0, 1], [1-self.I, self.I])[0]
