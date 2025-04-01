@@ -218,6 +218,15 @@ class SNNModel:
         for neu_id in self.preoutput_synapses.keys():
             t_a.append(self.preoutput_synapses[neu_id][0].get_latest_spike_timing_post())
         return np.array(t_a)
+    
+    def lmse(self, t_a, t_d):
+        '''
+        Least Mean Squares Error-function
+        t_a - np.array of actual timings
+        t_d - np.array of desired timings
+        '''
+        error = .5 * np.sum((t_a - t_d)**2)
+        return error
 
     
 

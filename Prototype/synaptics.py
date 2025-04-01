@@ -26,7 +26,7 @@ class Synapse:
                                'bcm': self.bcm}
 
 
-    def forward(self, _):
+    def forward(self, *_):
         if self.inhibitory:
             self.postsynaptic.accumulate_current(-1 * self.presynaptic.get_output_current() * self.w * self.scale)
         else:
