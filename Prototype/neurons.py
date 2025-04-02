@@ -131,6 +131,27 @@ class LIF(Neuron):
         else:
             self.spike_decrease()
         return self.impulse
+    
+
+class SRM(Neuron):
+    '''
+    THIS IS NOT A NEURON
+    '''
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.srm_tau = kwargs.get('srm_tau', 30)
+        self.v = 0
+        self.y = 0
+        self.ap_threshold = kwargs.get('ap_threshold', 10)
+
+    def dynamics(self):
+        self.v += (self.I - self.v/self.srm_tau) * self.resolution
+        self.y += (self.v - self.y/self.srm_tau) * self.resolution
+        if self.v >= self.ap_threshold:
+            self.spike_trace_choice()
+        else:
+            self.spike_decrease()
+        return self.impulse
 
 
 

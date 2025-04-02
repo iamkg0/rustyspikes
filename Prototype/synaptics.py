@@ -148,6 +148,9 @@ class Delayed_synapse(Synapse):
         self.dd = 0
         self.delay_debug = 0
 
+        # For SpikeProp
+        self.pre_output_at_t_a = 0
+
     def forward(self, freeze_delays=False):
         #print(self.delay)
         self.pre_impulse_queue.pop(0)
@@ -158,10 +161,10 @@ class Delayed_synapse(Synapse):
         self.post_impulse_queue.pop(0)
         self.post_impulse_queue.append(self.postsynaptic.get_output_current())
 
-        self.post_spiked_moment += 1
         if self.postsynaptic.get_spike_status():
+            self.pre_output_at_t_a = self.pre_impulse_queue[-1]
             self.post_spiked_moment = 0
-
+        self.post_spiked_moment += 1
         if not freeze_delays:
             self.sophisticated_rule(d_lr=self.d_lr)
         self.learning_rules[self.learning_rule]()

@@ -204,14 +204,17 @@ class SNNModel:
     '''
     SpikeProp algorithm
     '''
-    def spikeprop(self, timings_d, lr=0.01):
+    def spikeprop(self, t_d, lr=0.01):
         '''
-        timings_d - array of desired timings
+        t_d - array of desired timings
         '''
         pass
 
-    def calculate_delta_output(self, timings_d, ids):
-        d = (timings_d - self.find_latest_spike_timings_post)
+    def calculate_delta_output(self, t_d, ids):
+        t_a = self.find_latest_spike_timings_output()
+        diff_timings = (t_d - t_a)
+        
+
 
     def find_latest_spike_timings_output(self, ids):
         t_a = []
