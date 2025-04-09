@@ -184,7 +184,7 @@ def lif_test(num_input=10, rt=100, scale=1, aw=5):
 
 
 
-def conv_dyn(num_input=15, rt=100, scale=1, aw=5, pack_size=5, pack_step=2, num_hidden=3):
+def conv_dyn(num_input=5, rt=100, scale=1, aw=5, pack_size=3, pack_step=2, num_hidden=5):
     snn = SNNModel()
     neu_in = []
     neu_h = []
@@ -197,11 +197,13 @@ def conv_dyn(num_input=15, rt=100, scale=1, aw=5, pack_size=5, pack_step=2, num_
     out = Izhikevich(id=num_input+num_hidden)
     snn.add_neuron(out)
     current_pack = 0
+    h=0
     while current_pack <= num_input - pack_size:
-        for k in range(pack_size+current_pack):
-            for n in range(num_hidden):
-                syn = Synapse(neu_in[k], neu_h[n], scale=scale)
-                snn.add_synapse(syn)
+        for k in range(current_pack, pack_size+current_pack):
+            syn = Synapse(neu_in[k], neu_h[h], scale=scale)
+            snn.add_synapse(syn)
+            print(k,neu_h)
+        h += 1
         current_pack += pack_step
     for m in range(num_hidden):
         syn = Synapse(neu_h[m], out, scale=scale)
