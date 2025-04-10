@@ -5,7 +5,6 @@ from utils import *
 from shallow_models import *
 from vis_functions import *
 from pyvis.network import Network
-res = .1
 #plt.style.use(['dark_background'])
 
 
