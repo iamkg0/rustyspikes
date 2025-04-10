@@ -85,6 +85,46 @@ class Gatherer:
         return self.pre_vs[timings], self.pre_impulses[timings], self.pre_Is[timings], self.post_vs[timings], self.post_impulses[timings], self.post_Is[timings], self.ws[timings]
 
     
+def draw_convergence(data, total=True):
+    if type(data) != np.ndarray:
+        data = np.array(data)
+    plus = [[] for i in range(data.shape[0])]
+    minus = [[] for i in range(data.shape[0])]
+    for i in range(data.shape[0]):
+        temp = data[i, 0]
+        prev_minus = data[i, 0]
+        prev_plus = data[i, 0]
+        for j in range(data.shape[1]):
+            tick = temp + data[i, j]
+            if temp < data[i, j]:
+                minus[i].append(-tick)
+                prev_minus = -tick
+                plus[i].append(prev_plus)
+            if temp > data[i, j]:
+                plus[i].append(tick)
+                prev_plus = tick
+                minus[i].append(prev_minus)
+            if temp == data[i, j]:
+                plus[i].append(prev_plus)
+                minus[i].append(prev_minus)
+            temp = data[i, j]
+    plus = np.array(plus)
+    minus = np.array(minus)
+    if total:
+        plus = np.sum(plus, axis=0)
+        minus = np.sum(minus, axis=0)
+        plus_n = plus / np.max(plus)
+        minus_n = minus / np.max(minus)
+    else:
+        plus_n = plus / np.max(plus, axis=1)
+        minus_n = minus / np.max(minus, axis=1)
+    
+    plt.figure()
+    plt.plot(plus_n)
+    plt.plot(minus_n)
+    plt.show()
+
+
 def draw_stats_gatherer(pre_vs, pre_impulses, pre_Is, post_vs, post_impulses, post_Is, ws, time_range, resolution=None, fwidth=16, fheight=12, dpi=100):
     if not isinstance(time_range, np.ndarray) or isinstance(time_range, list):
         if not resolution:
