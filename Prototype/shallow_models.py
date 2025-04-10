@@ -189,7 +189,7 @@ def conv_dyn(num_input=5, rt=100, scale=1, aw=5, pack_size=3, pack_step=2, num_h
     neu_in = []
     neu_h = []
     for i in range(num_input):
-        neu_in.append(Spikes_at_will(id=i, refresh_time=rt, awaiting_time=aw))
+        neu_in.append(Spikes_at_will(id=i, refresh_time=rt, awaiting_time=aw*i))
         snn.add_neuron(neu_in[i])
     for j in range(num_hidden):
         neu_h.append(Izhikevich(id=num_input+j))
@@ -202,7 +202,6 @@ def conv_dyn(num_input=5, rt=100, scale=1, aw=5, pack_size=3, pack_step=2, num_h
         for k in range(current_pack, pack_size+current_pack):
             syn = Synapse(neu_in[k], neu_h[h], scale=scale)
             snn.add_synapse(syn)
-            print(k,neu_h)
         h += 1
         current_pack += pack_step
     for m in range(num_hidden):

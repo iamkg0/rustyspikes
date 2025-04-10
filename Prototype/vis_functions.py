@@ -1,7 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from utils import *
-res = .1
 
 ''' SHORTCUTS '''
 def short_single_synapse(pre_neu, post_neu, synapse, time, res=.1, rule=None, fwidth=16, fheight=9):
