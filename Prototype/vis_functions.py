@@ -73,6 +73,12 @@ class Gatherer:
     def drop_timer_and_spikes(self):
         self.timer = 0
         self.spikes = [[] for i in self.model.show_config()['Neurons']]
+
+    def show_stats(self, timings=None):
+        if not timings:
+            timings = range(len(self.pre_vs)-1)
+        return self.pre_vs[timings], self.pre_impulses[timings], self.pre_Is[timings], self.post_vs[timings], self.post_impulses[timings], self.post_Is[timings], self.ws[timings]
+
     
 def draw_stats_gatherer(pre_vs, pre_impulses, pre_Is, post_vs, post_impulses, post_Is, ws, time_range, resolution=None, fwidth=16, fheight=12, dpi=100):
     if not isinstance(time_range, np.ndarray) or isinstance(time_range, list):
