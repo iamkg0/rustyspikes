@@ -43,7 +43,9 @@ class Gatherer:
                 self.weights[counter].append(self.model.syn_by_edge[w].get_delay)
         self.timer += res
 
-    def get_stats(self, pre_ids = None, post_ids = None, weight_ids = None):
+    def get_stats(self, pre_ids = None, post_ids = None, weight_ids = None, timings=None):
+        if not timings:
+            timings = list(range(len(self.vs[0])))
         if not pre_ids:
             pre_ids = list(range(len(self.vs)-1))
         if not post_ids:
@@ -60,7 +62,7 @@ class Gatherer:
         post_impulses = np.array(self.impulses)[post_ids]
         post_Is = np.array(self.Is)[post_ids]
         ws = np.array(self.weights)[weight_indexes]
-        return pre_vs, pre_impulses, pre_Is, post_vs, post_impulses, post_Is, ws
+        return pre_vs[:,timings], pre_impulses[:,timings], pre_Is[:,timings], post_vs[:,timings], post_impulses[:,timings], post_Is[:,timings], ws[:,timings]
     
     def show_spike_stats(self, print_results=True):
         num_spikes = np.sum(np.array(self.spikes[-1]))
@@ -75,6 +77,9 @@ class Gatherer:
         self.spikes = [[] for i in self.model.show_config()['Neurons']]
 
     def show_stats(self, timings=None):
+        '''
+        doesnt work ahahahaha
+        '''
         if not timings:
             timings = range(len(self.pre_vs)-1)
         return self.pre_vs[timings], self.pre_impulses[timings], self.pre_Is[timings], self.post_vs[timings], self.post_impulses[timings], self.post_Is[timings], self.ws[timings]
