@@ -114,6 +114,16 @@ class Synapse:
     def change_learning_rule(self, rule):
         self.learning_rule = rule
 
+    def change_slow_var_limit(self, limit=False):
+        '''
+        limit = False in case of all-to-all interactions
+        '''
+        if not limit:
+            self.slow_var_choice = self.slow_var_unlimited
+        else:
+            self.slow_variable_limit = limit
+            self.slow_var_choice = self.slow_var_limited
+
     '''
     Misc:
     '''

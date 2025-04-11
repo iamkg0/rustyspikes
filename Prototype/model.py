@@ -194,6 +194,12 @@ class SNNModel:
         for syn in ids:
             self.syn_by_edge[syn].d_lr = d_lr
 
+    def set_slow_var_limit(self, limit, ids=None):
+        if not ids:
+            ids = [i for i in self.syn_by_edge.keys()]
+        for syn in ids:
+            self.syn_by_edge[syn].change_slow_var_limit(limit)
+
     def define_output(self, ids):
         for id in ids:
             self.output_neurons[id] = self.neurons[id]

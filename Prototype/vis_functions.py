@@ -114,14 +114,14 @@ def draw_convergence(data, total=True):
         plus = np.sum(plus, axis=0)
         minus = np.sum(minus, axis=0)
         plus_n = plus / np.max(plus)
-        minus_n = minus / np.max(minus)
+        minus_n = minus / np.min(minus)
     else:
-        plus_n = plus / np.max(plus, axis=1)
-        minus_n = minus / np.max(minus, axis=1)
+        plus_n = plus.T / np.max(plus, axis=1)
+        minus_n = minus.T / np.min(minus, axis=1)
     
     plt.figure()
-    plt.plot(plus_n)
-    plt.plot(minus_n)
+    plt.plot(plus_n - minus_n)
+    #plt.plot(minus_n)
     plt.show()
 
 
