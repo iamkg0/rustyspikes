@@ -85,6 +85,12 @@ class SNNModel:
     def get_output_neurons(self):
         return self.output_neurons
     
+    def get_output_ids(self):
+        ids = []
+        for i in self.output_neurons.keys():
+            ids.append(i)
+        return ids
+    
     def get_incoming_synapses(self, id):
         '''
         Returns list of adresses of synapses (objects, not ids!!!)
