@@ -396,6 +396,7 @@ class SNNModel:
             new_graph.add_node(self.neurons[i].get_id(), title=str(self.neurons[i].get_id()))
             print(self.neurons[i].get_id())
         for j in self.syn_by_edge:
-            new_graph.add_edge(self.get_neurons_by_edge(j)[0].get_id(), self.get_neurons_by_edge(j)[1].get_id(), weight=self.syn_by_edge[j].get_weight())
+            new_graph.add_edge(self.get_neurons_by_edge(j)[0].get_id(), self.get_neurons_by_edge(j)[1].get_id(), weight=str(self.syn_by_edge[j].get_weight()),
+                               title=str(self.syn_by_edge[j].get_weight()))
         return new_graph
     
