@@ -27,6 +27,9 @@ class Gatherer:
             counter += 1
         self.timer = 0
 
+    def __len__(self):
+        return len(self.vs[0])
+
     def gather_stats(self, gather_delay=False):
         for i in self.model.show_config()['Neurons']:
             self.vs[i].append(self.model.neurons[i].get_voltage_dynamics())
