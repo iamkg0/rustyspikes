@@ -207,5 +207,6 @@ def conv_dyn(num_input=5, rt=100, scale=1, aw=5, pack_size=3, pack_step=2, num_h
     for m in range(num_hidden):
         syn = Synapse(neu_h[m], out, scale=scale)
         snn.add_synapse(syn)
+    snn.define_output(ids=[num_input+num_hidden])
     snn.reload_graph()
     return snn
