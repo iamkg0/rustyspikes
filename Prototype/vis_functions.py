@@ -44,7 +44,7 @@ class Gatherer:
         self.timer += res
 
     def get_stats(self, pre_ids = None, post_ids = None, weight_ids = None, timings=None):
-        if not timings:
+        if not isinstance(timings, list) or not isinstance(timings, np.ndarray):
             timings = list(range(len(self.vs[0])))
         if not pre_ids:
             pre_ids = list(range(len(self.vs)-1))
