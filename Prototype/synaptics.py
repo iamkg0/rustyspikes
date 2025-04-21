@@ -23,7 +23,7 @@ class Synapse:
                                'pair_stdp': self.pair_stdp,
                                't_stdp': self.t_stdp,
                                't_stdp_forget': self.t_stdp_forgetting,
-                               'bcm': self.bcm}
+                               'strdp': self.strdp}
 
 
     def forward(self, *_):
@@ -81,6 +81,17 @@ class Synapse:
             dw += self.presynaptic.get_output_current() * (1 - self.w) * self.lr
         self.forgetting()
         self.w += dw
+
+    '''
+    STRDP - 10.1109/DCNA59899.2023.10290361
+    '''
+
+    def strdp(self, asymmetry=1, y=95):
+        if self.postsynaptic.get_spike_status():
+            potentiation = self.presynaptic.get_output_current() * (1 - self.w)
+            depression = asymmetry * self.w / (1 + y * self.presynaptic.get_output_current())
+            dw = potentiation - depression
+            self.w += dw * self.lr
         
 
 
