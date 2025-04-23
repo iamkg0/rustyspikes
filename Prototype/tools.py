@@ -42,8 +42,11 @@ class Log_handler:
     def create(self):
         if not os.path.exists(self.path):
             os.makedirs(self.path)
-        if os.path.isfile(self.path+self.filename):
-            print('This file already exists')
+        if os.path.isfile(self.path + '\\' + self.filename):
+            print('WARNING!')
+            print('This file already exists!')
+            print('.define_cols() method will remove all previous data')
+            print('.write_sample() method will append new data')
         else:
             with open(self.path + '\\' + self.filename, 'w') as file:
                 writer = csv.writer(file, delimiter='\t',lineterminator='\n')
