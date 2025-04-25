@@ -210,3 +210,27 @@ def conv_dyn(num_input=5, rt=100, scale=1, aw=5, pack_size=3, pack_step=2, num_h
     snn.define_output(ids=[num_input+num_hidden])
     snn.reload_graph()
     return snn
+
+
+def one_neu_dynamics(num_input=6, scale=1.2, rt=100, aw=5, interval=5, learning_rule='pair_stdp', delayed=False,
+                     lr=.1, tau=30, d_lr=.1, synaptic_limit=False, slow_variable_limit=False, max_delay=100, b=7.6, slow_tau=100, forget_tau=100, delay=1):
+    snn = SNNModel()
+    neu_in = []
+    for i in range(num_input):
+        neu_in.append(Spikes_at_will(id=i, refresh_time=rt, awaiting_time=aw + interval))
+        snn.add_neuron(neu_in[i])
+    neu_out = Izhikevich(id=num_input)
+    snn.add_neuron(neu_out)
+    snn.define_output(ids=[num_input])
+    if delayed:
+        for i in range(num_input):
+            syn = Delayed_synapse(neu_in[i], neu_out, scale=scale, synaptic_limit=1,
+                                  delay=delay, max_delay=max_delay, b=b, tau=tau, d_lr=d_lr)
+            snn.add_synapse(syn)
+    else:
+        for i in range(num_input):
+            syn = Synapse(neu_in[i], neu_out, scale=scale, synaptic_limit=synaptic_limit, slow_variable_limit=slow_variable_limit,
+                          lr=lr, slow_tau=slow_tau, learning_rule=learning_rule, forget_tau=forget_tau)
+            snn.add_synapse(syn)
+    snn.reload_graph()
+    return snn

@@ -112,8 +112,9 @@ def exp22(sc=7, num_inputs=10, tau=10, synaptic_limit=1):
 '''
 THE PROTOCOL
 '''
-def run_protocol(model, sampler, num_patterns=3, sample_time=150, interval=6, runs=3, lr=.1, d_lr=None,
-                 freeze_delays=False, gather_data=False, plot=False, plast_type=None, return_gatherer=False, gather_delays=True):
+def run_protocol(model, sampler, sample_time=150, interval=6, runs=3, lr=.1, d_lr=None,
+                 freeze_delays=False, gather_data=False, plot=False, plast_type=None, return_gatherer=False, gather_delays=True,
+                 logger=None):
     model.set_rule_to_all(plast_type)
     model.set_lr_to_all(lr)
     if d_lr:
@@ -148,6 +149,37 @@ def run_protocol(model, sampler, num_patterns=3, sample_time=150, interval=6, ru
     if plot and gather_data:
         draw_stats_gatherer(*gatherer.get_stats(pre_ids=list(range(1, len(model.show_config()['Neurons']))),
                                                 post_ids=[0]), time_range=sample_time*runs*(len(sampler)), resolution=res)
+    
+    if logger:
+        # values to write:
+        input_size = len(model.get_presyn_neurons_ids(*model.get_output_ids()))
+        aw_time = interval
+        #sample_time
+        #lr
+        #runs
+        #d_lr
+        scale = model.get_first_synapse().scale
+        rt = model.neurons[0].refresh_time
+        num_patterns = len(sampler)
+        synaptic_limit = model.neurons[0].synaptic_limit
+        slow_var_limit = model.get_first_synapse().slow_variable_limit
+        slow_tau = model.get_first_synapse().slow_tau
+        forget_tau = model.get_first_synapse().forget_tau
+        spikes = num_spikes
+        if type(model.get_first_synapse()) == Delayed_synapse:
+            b = model.get_first_synapse().b
+            max_delay = model.get_first_synapse().max_delay
+            learning_rule = 'delayed'
+        else:
+            b = None
+            max_delay = None
+            learning_rule = model.get_first_synapse().learning_rule
+
+
+        logger.write_sample(input_size, aw_time, sample_time, lr, runs, d_lr, scale, rt,
+                            num_patterns, synaptic_limit, slow_var_limit, slow_tau, forget_tau,
+                            spikes, b, max_delay, learning_rule)
+
     if return_gatherer and gather_data:
         return model, np.array(delay), np.array(dd), np.array(num_spikes), gatherer
     else:

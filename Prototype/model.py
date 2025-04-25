@@ -36,6 +36,9 @@ class SNNModel:
         conf['Synapses'] = self.syn_by_edge
         return conf
     
+    def get_first_synapse(self):
+        return self.syn_by_edge[next(iter(self.syn_by_edge))]
+    
     def get_neuron_stats(self, id):
         v = self.neurons[id].get_voltage_dynamics()
         impulse = self.neurons[id].get_output_current()

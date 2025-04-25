@@ -33,11 +33,13 @@ log handler
 '''
 
 class Log_handler:
-    def __init__(self, path, filename):
+    def __init__(self, path=None, filename=None, delimeter='\t', lineterminator='\n'):
         self.map = {}
         self.data = []
         self.path = str(path)
         self.filename = filename
+        self.delim = delimeter
+        self.lineterm = lineterminator
 
     def create(self):
         if not os.path.exists(self.path):
@@ -49,11 +51,11 @@ class Log_handler:
             print('.write_sample() method will append new data')
         else:
             with open(self.path + '\\' + self.filename, 'w') as file:
-                writer = csv.writer(file, delimiter='\t',lineterminator='\n')
+                writer = csv.writer(file, delimiter=self.delim, lineterminator=self.lineterm)
         
     def define_cols(self, cols):
         with open(self.path + '\\' + self.filename, 'w') as file:
-            writer = csv.writer(file, delimiter='\t',lineterminator='\n')
+            writer = csv.writer(file, delimiter=self.delim, lineterminator=self.lineterm)
             self.data = [[] for i in range(len(cols))]
             for i in range(len(cols)):
                 self.map[cols[i]] = self.data[i]
@@ -64,7 +66,9 @@ class Log_handler:
             self.data[i].append(sample[i])
         
     def write_sample(self, sample):
+        if not self.map:
+            raise Exception('Columns are unnamed! Data will not be readable!')
         with open(self.path + '\\' + self.filename, 'a') as file:
-            writer = csv.writer(file, delimiter='\t',lineterminator='\n')
+            writer = csv.writer(file, delimiter=self.delim, lineterminator=self.lineterm)
             writer.writerow(sample)
                 
