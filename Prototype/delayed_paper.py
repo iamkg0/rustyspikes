@@ -159,9 +159,9 @@ def run_protocol(model, sampler, sample_time=150, interval=6, runs=3, lr=.1, d_l
         #runs
         #d_lr
         scale = model.get_first_synapse().scale
-        rt = model.neurons[0].refresh_time
+        rt = model.neurons[1].refresh_time
         num_patterns = len(sampler)
-        synaptic_limit = model.neurons[0].synaptic_limit
+        synaptic_limit = model.neurons[1].synaptic_limit
         slow_var_limit = model.get_first_synapse().slow_variable_limit
         slow_tau = model.get_first_synapse().slow_tau
         forget_tau = model.get_first_synapse().forget_tau
@@ -176,9 +176,13 @@ def run_protocol(model, sampler, sample_time=150, interval=6, runs=3, lr=.1, d_l
             learning_rule = model.get_first_synapse().learning_rule
 
 
-        logger.write_sample(input_size, aw_time, sample_time, lr, runs, d_lr, scale, rt,
+        sample_pack = [input_size, aw_time, sample_time, lr, runs, d_lr, scale, rt,
                             num_patterns, synaptic_limit, slow_var_limit, slow_tau, forget_tau,
-                            spikes, b, max_delay, learning_rule)
+                            spikes, b, max_delay, learning_rule]
+        for i in range(len(sample_pack)):
+            if sample_pack[i] == None:
+                sample_pack[i] = '-'
+        logger.write_sample(sample_pack)
 
     if return_gatherer and gather_data:
         return model, np.array(delay), np.array(dd), np.array(num_spikes), gatherer

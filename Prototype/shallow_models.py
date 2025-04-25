@@ -216,11 +216,11 @@ def one_neu_dynamics(num_input=6, scale=1.2, rt=100, aw=5, interval=5, learning_
                      lr=.1, tau=30, d_lr=.1, synaptic_limit=False, slow_variable_limit=False, max_delay=100, b=7.6, slow_tau=100, forget_tau=100, delay=1):
     snn = SNNModel()
     neu_in = []
-    for i in range(num_input):
-        neu_in.append(Spikes_at_will(id=i, refresh_time=rt, awaiting_time=aw + interval))
-        snn.add_neuron(neu_in[i])
-    neu_out = Izhikevich(id=num_input)
+    neu_out = Izhikevich(id=0)
     snn.add_neuron(neu_out)
+    for i in range(num_input):
+        neu_in.append(Spikes_at_will(id=i+1, refresh_time=rt, awaiting_time=aw + interval))
+        snn.add_neuron(neu_in[i])
     snn.define_output(ids=[num_input])
     if delayed:
         for i in range(num_input):
