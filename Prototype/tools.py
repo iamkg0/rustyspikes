@@ -32,7 +32,7 @@ def sampler(num_inputs=10, num_rand_patterns=2):
 log handler
 '''
 
-class Log_handler:
+class LogHandler:
     def __init__(self, path=None, filename=None, delimeter='\t', lineterminator='\n'):
         self.map = {}
         self.data = []
@@ -42,11 +42,16 @@ class Log_handler:
         self.lineterm = lineterminator
 
     def create(self):
+        '''
+        Creates log file
+        '''
         if not os.path.exists(self.path):
             os.makedirs(self.path)
         if os.path.isfile(self.path + '\\' + self.filename):
-            print('WARNING!')
-            print('This file already exists!')
+            print('===== WARNING! =====')
+            print(f'{self.path}\{self.filename} already exists!')
+            print('Data hasnt been overwritten yet!')
+            print('NOTICE:')
             print('.define_cols() method will remove all previous data')
             print('.write_sample() method will append new data')
         else:
@@ -54,18 +59,32 @@ class Log_handler:
                 writer = csv.writer(file, delimiter=self.delim, lineterminator=self.lineterm)
         
     def define_cols(self, cols):
+        '''
+        Removes all data from file and defines columns
+        '''
         with open(self.path + '\\' + self.filename, 'w') as file:
             writer = csv.writer(file, delimiter=self.delim, lineterminator=self.lineterm)
             self.data = [[] for i in range(len(cols))]
             for i in range(len(cols)):
                 self.map[cols[i]] = self.data[i]
             writer.writerow(cols)
+            print('===== WARNING! =====')
+            print('If there was any data, now theres none')
+            print('Columns were configured')
+            print(f'{self.path}\{self.filename}')
 
     def append_sample(self, sample):
+        '''
+        Adds data to list
+        Doesnt write data to a file
+        '''
         for i in range(len(sample)):
             self.data[i].append(sample[i])
         
     def write_sample(self, sample):
+        '''
+        Adds data to a file
+        '''
         if not self.map:
             raise Exception('Columns are unnamed! Data will not be readable!')
         with open(self.path + '\\' + self.filename, 'a') as file:
