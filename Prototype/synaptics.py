@@ -23,7 +23,8 @@ class Synapse:
                                'pair_stdp': self.pair_stdp,
                                't_stdp': self.t_stdp,
                                't_stdp_forget': self.t_stdp_forgetting,
-                               'strdp': self.strdp}
+                               'strdp': self.strdp,
+                               'delayed': self.empty_fun}
 
 
     def forward(self, *_):

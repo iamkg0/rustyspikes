@@ -2,6 +2,8 @@ from model import *
 from vis_functions import *
 from tools import *
 
+np.random.seed(42)
+
 res = .1
 
 
@@ -112,13 +114,20 @@ def exp22(sc=7, num_inputs=10, tau=10, synaptic_limit=1):
 '''
 THE PROTOCOL
 '''
-def run_protocol(model, sampler, sample_time=150, interval=6, runs=3, lr=.1, d_lr=None,
+def run_protocol(model, sampler, sample_time=150, interval=6, runs=3, lr=.1, d_lr=None, test=False,
                  freeze_delays=False, gather_data=False, plot=False, plast_type=None, return_gatherer=False, gather_delays=True,
                  logger=None):
-    model.set_rule_to_all(plast_type)
-    model.set_lr_to_all(lr)
-    if d_lr:
-        model.set_d_lr(d_lr)
+    learning_rule = plast_type
+    if not test:
+        model.set_rule_to_all(plast_type)
+        model.set_lr_to_all(lr)
+        if d_lr:
+            model.set_d_lr(d_lr)
+    else:
+        model.set_rule_to_all(None)
+        model.set_lr_to_all(0)
+        if d_lr:
+            model.set_d_lr(0)
     delay = [[] for i in range(len(model.show_config()['Neurons'])-1)]
     dd = [[] for i in range(len(model.show_config()['Neurons'])-1)]
     num_spikes = [0 for i in range(len(sampler))]
@@ -169,11 +178,9 @@ def run_protocol(model, sampler, sample_time=150, interval=6, runs=3, lr=.1, d_l
         if type(model.get_first_synapse()) == Delayed_synapse:
             b = model.get_first_synapse().b
             max_delay = model.get_first_synapse().max_delay
-            learning_rule = 'delayed'
         else:
             b = None
             max_delay = None
-            learning_rule = model.get_first_synapse().learning_rule
 
 
         sample_pack = [input_size, aw_time, sample_time, lr, runs, d_lr, scale, rt,
@@ -203,7 +210,7 @@ def cfg_slicer(cfg):
                         for d_lr in cfg['d_lr']:
                             for scale in cfg['scale']:
                                 for rt in cfg['rt']:
-                                    for num_patterns in cfg['num_patterns']:
+                                    for num_patterns in cfg['num_rand_patterns']:
                                         for synaptic_limit in cfg['synaptic_limit']:
                                             for slow_tau in cfg['slow_tau']:
                                                 for forget_tau in cfg['forget_tau']:

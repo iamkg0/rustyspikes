@@ -12,7 +12,7 @@ def sampler(num_inputs=10, num_rand_patterns=2):
     sequence = np.arange(num_inputs) + 1
     patterns = {}
     patterns[0] = sequence.tolist()
-    for p in range(1, num_rand_patterns+2):
+    for p in range(1, num_rand_patterns+1):
         seq = sequence.copy()
         np.random.shuffle(seq)
         seq = seq.tolist()
@@ -72,6 +72,11 @@ class LogHandler:
             print('If there was any data, now theres none')
             print('Columns were configured')
             print(f'{self.path}\{self.filename}')
+    
+    def comment(self, comment):
+        with open(self.path + '\\' + self.filename, 'a') as file:
+            writer = csv.writer(file, delimiter=',', lineterminator=self.lineterm)
+            writer.writerow('#'+str(comment))
 
     def append_sample(self, sample):
         '''

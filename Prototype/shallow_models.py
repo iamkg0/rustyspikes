@@ -221,7 +221,7 @@ def one_neu_dynamics(num_input=6, scale=1.2, rt=100, aw=5, interval=5, learning_
     for i in range(num_input):
         neu_in.append(Spikes_at_will(id=i+1, refresh_time=rt, awaiting_time=aw + interval))
         snn.add_neuron(neu_in[i])
-    snn.define_output(ids=[num_input])
+    snn.define_output(ids=[0])
     if delayed:
         for i in range(num_input):
             syn = Delayed_synapse(neu_in[i], neu_out, scale=scale, synaptic_limit=1,
