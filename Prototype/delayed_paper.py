@@ -188,3 +188,45 @@ def run_protocol(model, sampler, sample_time=150, interval=6, runs=3, lr=.1, d_l
         return model, np.array(delay), np.array(dd), np.array(num_spikes), gatherer
     else:
         return model, np.array(delay), np.array(dd), np.array(num_spikes)
+    
+
+def cfg_slicer(cfg):
+    '''
+    No, im not ashamed
+    '''
+    configs = []
+    for input_size in cfg['input_size']:
+        for aw_time in cfg['aw_time']:
+            for sample_time in cfg['sample_time']:
+                for lr in cfg['lr']:
+                    for runs in cfg['runs']:
+                        for d_lr in cfg['d_lr']:
+                            for scale in cfg['scale']:
+                                for rt in cfg['rt']:
+                                    for num_patterns in cfg['num_patterns']:
+                                        for synaptic_limit in cfg['synaptic_limit']:
+                                            for slow_tau in cfg['slow_tau']:
+                                                for forget_tau in cfg['forget_tau']:
+                                                    for b in cfg['b']:
+                                                        for max_delay in cfg['max_delay']:
+                                                            for learning_rule in cfg['learning_rule']:
+                                                                configs.append(
+                                                                    {
+                                                                        'input_size': input_size,
+                                                                        'aw_time': aw_time,
+                                                                        'sample_time': sample_time,
+                                                                        'lr': lr,
+                                                                        'runs': runs,
+                                                                        'd_lr': d_lr,
+                                                                        'scale': scale,
+                                                                        'rt': rt,
+                                                                        'num_patterns': num_patterns,
+                                                                        'synaptic_limit': synaptic_limit,
+                                                                        'slow_tau': slow_tau,
+                                                                        'forget_tau': forget_tau,
+                                                                        'b': b,
+                                                                        'max_delay': max_delay,
+                                                                        'learning_rule': learning_rule
+                                                                     }
+                                                                )
+    return configs
