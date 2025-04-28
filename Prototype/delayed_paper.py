@@ -116,7 +116,7 @@ THE PROTOCOL
 '''
 def run_protocol(model, sampler, sample_time=150, interval=6, runs=3, lr=.1, d_lr=None, test=False,
                  freeze_delays=False, gather_data=False, plot=False, plast_type=None, return_gatherer=False, gather_delays=True,
-                 logger=None):
+                 logger=None, init_weights=None, stick_del_w_to_one=True):
     learning_rule = plast_type
     if not test:
         model.set_rule_to_all(plast_type)
@@ -135,7 +135,12 @@ def run_protocol(model, sampler, sample_time=150, interval=6, runs=3, lr=.1, d_l
     if gather_data:
         gatherer = Gatherer(model)
 
-    for p in range(len(sampler)):
+    if test:
+        length = len(sampler)
+    else:
+        length = 1
+
+    for p in range(length):
         sample = sampler[p]
         for run in range(runs):
             aw = 1
@@ -157,7 +162,7 @@ def run_protocol(model, sampler, sample_time=150, interval=6, runs=3, lr=.1, d_l
                             dd[edge-1].append(model.syn_by_edge[edge,0].dd)
     if plot and gather_data:
         draw_stats_gatherer(*gatherer.get_stats(pre_ids=list(range(1, len(model.show_config()['Neurons']))),
-                                                post_ids=[0]), time_range=sample_time*runs*(len(sampler)), resolution=res)
+                                                post_ids=[0]), time_range=sample_time*runs*(length), resolution=res)
     
     if logger:
         # values to write:
@@ -175,6 +180,7 @@ def run_protocol(model, sampler, sample_time=150, interval=6, runs=3, lr=.1, d_l
         slow_tau = model.get_first_synapse().slow_tau
         forget_tau = model.get_first_synapse().forget_tau
         spikes = num_spikes
+        noise = model.get_output_neurons()[0].noise
         if type(model.get_first_synapse()) == Delayed_synapse:
             b = model.get_first_synapse().b
             max_delay = model.get_first_synapse().max_delay
@@ -182,10 +188,12 @@ def run_protocol(model, sampler, sample_time=150, interval=6, runs=3, lr=.1, d_l
             b = None
             max_delay = None
 
+        if stick_del_w_to_one and learning_rule == 'delayed':
+            init_weights = 1
 
         sample_pack = [input_size, aw_time, sample_time, lr, runs, d_lr, scale, rt,
                             num_patterns, synaptic_limit, slow_var_limit, slow_tau, forget_tau,
-                            spikes, b, max_delay, learning_rule]
+                            spikes, b, max_delay, learning_rule, noise, init_weights]
         for i in range(len(sample_pack)):
             if sample_pack[i] == None:
                 sample_pack[i] = '-'
@@ -217,23 +225,27 @@ def cfg_slicer(cfg):
                                                     for b in cfg['b']:
                                                         for max_delay in cfg['max_delay']:
                                                             for learning_rule in cfg['learning_rule']:
-                                                                configs.append(
-                                                                    {
-                                                                        'input_size': input_size,
-                                                                        'aw_time': aw_time,
-                                                                        'sample_time': sample_time,
-                                                                        'lr': lr,
-                                                                        'runs': runs,
-                                                                        'd_lr': d_lr,
-                                                                        'scale': scale,
-                                                                        'rt': rt,
-                                                                        'num_patterns': num_patterns,
-                                                                        'synaptic_limit': synaptic_limit,
-                                                                        'slow_tau': slow_tau,
-                                                                        'forget_tau': forget_tau,
-                                                                        'b': b,
-                                                                        'max_delay': max_delay,
-                                                                        'learning_rule': learning_rule
-                                                                     }
-                                                                )
+                                                                for noise in cfg['noise']:
+                                                                    for weights in cfg['weights']:
+                                                                        configs.append(
+                                                                            {
+                                                                                'input_size': input_size,
+                                                                                'aw_time': aw_time,
+                                                                                'sample_time': sample_time,
+                                                                                'lr': lr,
+                                                                                'runs': runs,
+                                                                                'd_lr': d_lr,
+                                                                                'scale': scale,
+                                                                                'rt': rt,
+                                                                                'num_patterns': num_patterns,
+                                                                                'synaptic_limit': synaptic_limit,
+                                                                                'slow_tau': slow_tau,
+                                                                                'forget_tau': forget_tau,
+                                                                                'b': b,
+                                                                                'max_delay': max_delay,
+                                                                                'learning_rule': learning_rule,
+                                                                                'noise': noise,
+                                                                                'weights': weights
+                                                                            }
+                                                                        )
     return configs
