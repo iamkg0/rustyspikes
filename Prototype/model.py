@@ -192,7 +192,7 @@ class SNNModel:
 
     def set_random_weights(self, ranges=(0,1)):
         for i in self.syn_by_edge.keys():
-            self.syn_by_edge[i].w = np.uniform(*ranges)
+            self.syn_by_edge[i].w = np.random.uniform(*ranges)
 
     def set_weight_manually(self, id, weight):
         self.syn_by_edge[id].set_weight_manually(weight)
@@ -208,6 +208,13 @@ class SNNModel:
             ids = [i for i in self.syn_by_edge.keys()]
         for syn in ids:
             self.syn_by_edge[syn].change_slow_var_limit(limit)
+
+    def set_scale(self, scale):
+        '''
+        Adjust scale value to all synapses
+        '''
+        for i in self.syn_by_edge.values():
+            i.scale = scale
 
     def define_output(self, ids):
         for id in ids:

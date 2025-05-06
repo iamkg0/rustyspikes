@@ -40,6 +40,7 @@ class LogHandler:
         self.filename = filename
         self.delim = delimeter
         self.lineterm = lineterminator
+        self.df = None
 
     def create(self):
         '''
@@ -96,3 +97,14 @@ class LogHandler:
             writer = csv.writer(file, delimiter=self.delim, lineterminator=self.lineterm)
             writer.writerow(sample)
                 
+    def read_data(self, **kwargs):
+        '''
+        kinda useless
+        '''
+        path = kwargs.get('path', self.path)
+        filename = kwargs.get('filename', self.filename)
+        delim = kwargs.get('delimeter', self.delim)
+        self.df = pd.read_csv(path + '\\' + filename, sep=delim)
+
+    def show_df(self):
+        return self.df

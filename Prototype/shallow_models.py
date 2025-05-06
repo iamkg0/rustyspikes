@@ -212,7 +212,7 @@ def conv_dyn(num_input=5, rt=100, scale=1, aw=5, pack_size=3, pack_step=2, num_h
     return snn
 
 
-def one_neu_dynamics(num_input=6, scale=1.2, rt=100, aw=5, interval=5, learning_rule='pair_stdp', delayed=False,
+def one_neu_dynamics(num_input=6, scale=1.2, rt=100, interval=5, learning_rule='pair_stdp', delayed=False,
                      lr=.1, tau=30, d_lr=.1, synaptic_limit=False, slow_variable_limit=False, max_delay=100, b=7.6,
                      slow_tau=100, forget_tau=100, delay=1, noise=3, weights=(.4, .6), stick_del_w_to_one=True):
     snn = SNNModel()
@@ -220,7 +220,7 @@ def one_neu_dynamics(num_input=6, scale=1.2, rt=100, aw=5, interval=5, learning_
     neu_out = Izhikevich(id=0, noise=noise)
     snn.add_neuron(neu_out)
     for i in range(num_input):
-        neu_in.append(Spikes_at_will(id=i+1, refresh_time=rt, awaiting_time=aw + interval))
+        neu_in.append(Spikes_at_will(id=i+1, refresh_time=rt, awaiting_time=interval * i))
         snn.add_neuron(neu_in[i])
     snn.define_output(ids=[0])
     if delayed:
