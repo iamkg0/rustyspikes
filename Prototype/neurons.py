@@ -212,9 +212,15 @@ class Spikes_at_will(Neuron):
 class DirectNeuron(Neuron):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.v = 0
+        self.I = kwargs.get('I', 0)
+        self.impulse = self.I
         
     def dynamics(self):
-        return self.impulse
+        return self.I
     
     def set_impulse(self, impulse):
+        self.I = impulse
         self.impulse = impulse
+
+    

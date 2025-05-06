@@ -217,3 +217,21 @@ class Delayed_synapse(Synapse):
     def get_latest_spike_timing_post(self):
         return self.post_spiked_moment
 
+
+
+
+
+class NeverLearn(Synapse):
+    def __init__(self, presynaptic, postsynaptic, **kwargs):
+        super().__init__(presynaptic, postsynaptic, **kwargs)
+        self.presynaptic = presynaptic
+        self.postsynaptic = postsynaptic
+        self.keep_settings = kwargs.get('keet_settings', True)
+        self.w_default = kwargs.get('w', 1)
+        self.scale_default = kwargs.get('scale', 1)
+
+    def forward(self, *_):
+        if self.keep_settings:
+            self.w = self.w_default
+            self.scale = self.scale_default
+        self.postsynaptic.accumulate_current(self.presynaptic.get_output_current() * self.w * self.scale)
