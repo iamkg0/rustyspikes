@@ -207,3 +207,14 @@ class Spikes_at_will(Neuron):
         self.awaiting_time = kwargs.get('awaiting_time', self.awaiting_time)
         self.refresh_time = kwargs.get('refresh_time', self.refresh_time)
         self.refresh()
+
+
+class DirectNeuron(Neuron):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        
+    def dynamics(self):
+        return self.impulse
+    
+    def set_impulse(self, impulse):
+        self.impulse = impulse
