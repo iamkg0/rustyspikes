@@ -30,6 +30,12 @@ class SNNModel:
     def __getitem__(self, idx):
         return self.neurons[idx]
     
+    def num_synapses(self):
+        return len(self.syn_by_edge)
+    
+    def num_neurons(self):
+        return len(self.neurons)
+    
     def show_config(self):
         conf = {}
         conf['Neurons'] = self.neurons
@@ -46,8 +52,45 @@ class SNNModel:
         return v, impulse, I
     
     def get_weight(self, id):
+        '''
+        returns weight of given synapse, float
+        '''
         return self.syn_by_edge[id].get_weight()
     
+    def get_weights(self, ids=None):
+        '''
+        returns weights of given list of synapses, list
+        in case ids is None of False, gathers values from all synapses
+        '''
+        weights = []
+        if ids:
+            for i in ids:
+                weights.append(self.syn_by_edge[i].get_weight())
+        else:
+            for i in self.syn_by_edge.values():
+                weights.append(i.get_weight())
+        return weights
+    
+    def get_delay(self, id):
+        '''
+        returns delay of given synapse, float
+        '''
+        return self.syn_by_edge[id].get_delay()
+        
+    def get_delays(self, ids=None):
+        '''
+        returns list of given synapses, list
+        in case ids is None of False, gathers values from all synapses
+        '''
+        delays = []
+        if ids:
+            for i in ids:
+                delays.append(self.syn_by_edge[i].get_delay())
+        else:
+            for i in self.syn_by_edge.values():
+                delays.append(i.get_delay())
+        return delays
+
     def get_graph(self):
         return self.graph
     

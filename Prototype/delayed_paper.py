@@ -200,9 +200,9 @@ def run_protocol(model, sampler, sample_time=150, interval=6, runs=3, lr=.1, d_l
         logger.write_sample(sample_pack)
 
     if return_gatherer and gather_data:
-        return model, np.array(delay), np.array(dd), np.array(num_spikes), gatherer
+        return model, np.array(delay).T, np.array(dd), np.array(num_spikes), gatherer
     else:
-        return model, np.array(delay), np.array(dd), np.array(num_spikes)
+        return model, np.array(delay).T, np.array(dd), np.array(num_spikes)
     
 
 def cfg_slicer(cfg):
