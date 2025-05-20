@@ -239,3 +239,26 @@ def one_neu_dynamics(num_input=6, scale=1.2, rt=100, interval=5, learning_rule='
             snn.add_synapse(syn)
     snn.reload_graph()
     return snn
+
+
+def rf_test_unit(scale=1, rt=100, interval=5,
+                 lr=.1, tau=30, d_lr=1, synaptic_limit=1, max_delay=100, b=7.6,
+                 slow_tau=100, forget_tau=100, delay=0, noise=0, weights=(1,1)):
+    '''
+    3 inputs, second is inhibitory. Delayed syns
+    '''
+    snn = SNNModel()
+    neu_out = Izhikevich(id=0, noise=noise)
+    for i in range(1,4):
+        neu = Spikes_at_will(id=i, refresh_time=rt, awaiting_time=interval*i)
+        if i == 2:
+            snn.add_synapse(Delayed_synapse(neu, neu_out, scale=scale, synaptic_limit=synaptic_limit, slow_variable_limit=synaptic_limit,
+                                    lr=lr, d_lr=d_lr, max_delay=max_delay, b=b, tau=tau, slow_tau=slow_tau, forget_tau=forget_tau,
+                                    delay=delay,weights=weights, inhibitory=True))
+        else:
+            snn.add_synapse(Delayed_synapse(neu, neu_out, scale=scale, synaptic_limit=synaptic_limit, slow_variable_limit=synaptic_limit,
+                                    lr=lr, d_lr=d_lr, max_delay=max_delay, b=b, tau=tau, slow_tau=slow_tau, forget_tau=forget_tau,
+                                    delay=delay,weights=weights, inhibitory=False))
+    print(snn.show_config())
+    snn.reload_graph()
+    return snn

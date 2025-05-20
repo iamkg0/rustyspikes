@@ -65,7 +65,9 @@ class Gatherer:
         post_impulses = np.array(self.impulses)[post_ids]
         post_Is = np.array(self.Is)[post_ids]
         ws = np.array(self.weights)[weight_indexes]
-        return pre_vs[:,timings], pre_impulses[:,timings], pre_Is[:,timings], post_vs[:,timings], post_impulses[:,timings], post_Is[:,timings], ws[:,timings]
+        t_0 = int(timings[0])
+        t_1 = int(timings[-1] + 1)
+        return pre_vs[:,t_0:t_1], pre_impulses[:,t_0:t_1], pre_Is[:,t_0:t_1], post_vs[:,t_0:t_1], post_impulses[:,t_0:t_1], post_Is[:,t_0:t_1], ws[:,t_0:t_1]
     
     def show_spike_stats(self, print_results=True):
         num_spikes = np.sum(np.array(self.spikes[-1]))
