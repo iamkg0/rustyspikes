@@ -217,7 +217,7 @@ class DirectNeuron(Neuron):
         self.impulse = self.I
         
     def dynamics(self):
-        return self.I
+        return self.impulse
     
     def set_impulse(self, impulse):
         self.I = impulse

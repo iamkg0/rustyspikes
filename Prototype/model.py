@@ -155,6 +155,16 @@ class SNNModel:
         for i in postsyn_neurons_ids:
             synapses.append(self.syn_by_edge[(id, i)])
         return synapses
+    
+    def get_response(self, just_timings=True):
+        response = []
+        if just_timings:
+            for i in self.output_neurons.keys():
+                response.append(int(self.output_neurons[i].spiked))
+        else:
+            for i in self.output_neurons.keys():
+                response.append(self.output_neurons[i].impulse)
+        return response
 
    
     '''
@@ -260,6 +270,8 @@ class SNNModel:
             i.scale = scale
 
     def define_output(self, ids):
+        if isinstance(ids, int):
+            ids = [ids]
         for id in ids:
             self.output_neurons[id] = self.neurons[id]
         for i in self.output_neurons.keys():

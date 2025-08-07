@@ -93,14 +93,7 @@ class Synapse:
             depression = asymmetry * self.w / (1 + y * self.presynaptic.get_output_current())
             dw = potentiation - depression
             self.w += dw * self.lr
-        
 
-
-    '''
-    BCM rule related functions:
-    '''
-    def bcm(self):
-        return 0
 
     '''
     Get info:
@@ -169,6 +162,7 @@ class Delayed_synapse(Synapse):
         # Debug:
         self.dd = 0
         self.delay_debug = 0
+        self.delta_b = 0
 
         # For SpikeProp
         self.pre_output_at_t_a = 0
@@ -196,7 +190,6 @@ class Delayed_synapse(Synapse):
         moment = int(self.max_delay - self.delay - self.b)
         self.delay_debug = delay
         dd = 0
-        #self.post_spiked_moment += 1
         if self.pre_spiked[moment]:
             dd -= (1 - self.postsynaptic.get_output_current()) * self.postsynaptic.get_output_current() * delay * asymmetry
             self.dd = dd # FOR DEBUG
@@ -206,8 +199,15 @@ class Delayed_synapse(Synapse):
             dd += (1 - self.pre_impulse_queue[moment]) * self.pre_impulse_queue[moment] * (1 - delay)
             #print('+, ',dd, '-, ',self.dd, f'del {self.delay}, pre_sp_m {self.post_spiked_moment}', f'del_deb {self.delay_debug}')
             self.dd = dd # FOR DEBUG
-            #self.post_spiked_moment = 0
-            self.delay += dd * d_lr        
+            self.delay += dd * d_lr 
+
+            #b = 1 / self.b
+            #self.delta_b =  b * (self.pre_impulse_queue[moment] - 1) * self.postsynaptic.I
+            #self.b -= self.delta_b
+            #b = self.b / (self.max_delay - self.b)
+            #delta_b = (b/self.postsynaptic.I)**2
+            #self.b += delta_b
+            #self.delta_b = b
 
 
 
@@ -226,7 +226,7 @@ class NeverLearn(Synapse):
         super().__init__(presynaptic, postsynaptic, **kwargs)
         self.presynaptic = presynaptic
         self.postsynaptic = postsynaptic
-        self.keep_settings = kwargs.get('keet_settings', True)
+        self.keep_settings = kwargs.get('keep_settings', True)
         self.w_default = kwargs.get('w', 1)
         self.scale_default = kwargs.get('scale', 1)
 

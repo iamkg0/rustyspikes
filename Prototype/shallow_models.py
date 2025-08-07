@@ -62,16 +62,17 @@ def dr_single():
     snn.reload_graph()
     return snn
 
-def dr_izh_single(sc=7):
+def dr_izh_single(sc=7, aw0=1, rt0=100, b=7.4, d_lr=1, delay=1):
     snn = SNNModel()
-    rt0 = 100 # msec
-    aw0 = 1 # msec
+    #rt0 = 100 # msec
+    #aw0 = 1 # msec
     input = Spikes_at_will(awaiting_time=aw0, refresh_time=rt0, synaptic_limit=1, tau=10)
     output = Izhikevich(tau=10, synaptic_limit=1)
-    syn = Delayed_synapse(input, output, scale=sc, delay=5, max_delay=100, d_lr=1, b=7.4)
+    syn = Delayed_synapse(input, output, scale=sc, delay=delay, max_delay=100, d_lr=d_lr, b=b)
     snn.add_neuron(input)
     snn.add_neuron(output)
     snn.add_synapse(syn)
+    snn.define_output(1)
     snn.reload_graph()
     return snn
 
@@ -92,11 +93,10 @@ def delayed_3to1():
     snn.reload_graph()
     return snn
 
-def delayed_10_inputs():
+def delayed_10_inputs(rt=100, aw=10, dels=100, m_delay=300, scale=6, b=7.4, d_lr=10):
     snn = SNNModel()
-    rt = 100
-    awaitings = np.arange(10) * 10
-    delays = np.ones(10) * 100
+    awaitings = np.arange(10) * aw
+    delays = np.ones(10) * dels
     neurons = []
     for i in awaitings:
         n = Spikes_at_will(awaiting_time=i, refresh_time=rt, synaptic_limit=1, tau=10)
@@ -104,8 +104,9 @@ def delayed_10_inputs():
         snn.add_neuron(n)
     out = Izhikevich()
     snn.add_neuron(out)
+    snn.define_output(out.id)
     for j in range(len(delays)):
-        s = Delayed_synapse(neurons[j], out, scale=.6, refresh_time=rt, synaptic_limit=1, tau=10, delay=30, max_delay=300)
+        s = Delayed_synapse(neurons[j], out, scale=scale, b=b, refresh_time=rt, synaptic_limit=1, tau=10, delay=30, max_delay=m_delay, d_lr=d_lr)
         snn.add_synapse(s)
     snn.reload_graph()
     return snn
@@ -262,3 +263,37 @@ def rf_test_unit(scale=1, rt=100, interval=5,
     print(snn.show_config())
     snn.reload_graph()
     return snn
+
+
+def syn_with_outer_cur(rt, aw, I=10, delay=1, d_lr=10):
+    '''
+    Generates two synapses - one actual that is to explore,
+    and one fake, to provide output with DC
+    '''
+    model = SNNModel()
+    neu0 = Spikes_at_will(refresh_time=rt, aw=aw)
+    neu_out = Izhikevich()
+    outer_cur = DirectNeuron(I=I)
+    syn = Delayed_synapse(neu0, neu_out, w=1, delay=delay, max_delay=100, b=2, d_lr=d_lr)
+    syn1 = NeverLearn(outer_cur, neu_out, w=1)
+    model.add_neuron(neu0)
+    model.add_neuron(neu_out)
+    model.add_neuron(outer_cur)
+    model.add_synapse(syn)
+    model.add_synapse(syn1)
+    model.define_output(1)
+    model.reload_graph()
+    return model
+
+
+def single_delayed(rt, aw, delay=1, d_lr=10):
+    model = SNNModel()
+    neu0 = Spikes_at_will(refresh_time=rt, aw=aw)
+    neu_out = Izhikevich()
+    syn = Delayed_synapse(neu0, neu_out, w=1, delay=delay, max_delay=100, b=2, d_lr=d_lr, scale=7)
+    model.add_neuron(neu0)
+    model.add_neuron(neu_out)
+    model.add_synapse(syn)
+    model.define_output(1)
+    model.reload_graph()
+    return model
