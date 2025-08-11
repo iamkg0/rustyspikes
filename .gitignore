@@ -1,24 +1,11 @@
 __pycache__
 lib
-graph.html
-
-Prototype/test.ipynb
 Prototype/logs
-Prototype/bfnaics.ipynb
-Prototype/test_delayed.ipynb
-Prototype/ER_SPB.ipynb
-test_delayed.ipynb
 backup
-bfnaics_vis.ipynb
 pics
-Prototype/random_patterns.ipynb
-Prototype/architecture.ipynb
 Prototype/notes
-Prototype/rands.ipynb
-Prototype/test.html
-Prototype/big_delayed.ipynb
-Prototype/rf_test.ipynb
-Prototype/b_test.ipynb
+*.ipynb
+*.html
 
 # Added by cargo
 
