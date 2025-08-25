@@ -3,30 +3,30 @@ from delayed_paper import *
 np.random.seed(42)
 
 log_path = r'C:\Users\iamkg0\Desktop\projects\rustyspikes\Prototype\logs\testing'
-log_name = 'test_1.csv'
+log_name = 'in_size_5.csv'
 log = LogHandler(path=log_path, filename=log_name)
 
 
 # PROTOCOL CONFIGURATION
 
 config = {
-    'input_size': [5, 6, 7, 8],
-    'aw_time': [4, 4.5, 5, 5.5, 6],
+    'input_size': [5],
+    'aw_time': [5],
     'sample_time': [150],
     'lr': [.01],
     'runs': [250],
-    'd_lr': [1],
-    'scale': [0.7, 0.8, 0.9, 1, 1.1, 1.2, 1.3, 1.4, 1.5],
+    'd_lr': [10],
+    'scale': [0.5, 0.6, 0.7, 0.8, 0.9, 1, 1.1, 1.2, 1.3],
     'rt': [250],
-    'num_rand_patterns': [3, 5, 7],
-    'synaptic_limit': [1, None],
+    'num_rand_patterns': [5],
+    'synaptic_limit': [1],
     'slow_tau': [100],
     'forget_tau': [100],
-    'b': [7.5, 7.6, 7.7],
+    'b': [7],
     'max_delay': [100],
-    'learning_rule': ['pair_stdp', 't_stdp', 'strdp', 'delayed'],
-    'noise': [0.7, 1, 1.3, 1.6, 1.9],
-    'weights': [(.2, .4), (.2, .6), (.4, .6), (.4, .8), (1, 1)],
+    'learning_rule': ['pair_stdp', 't_stdp', 'delayed'],
+    'noise': [0.5, 0.7, 1, 1.3],
+    'weights': [(1, 1)],
 }
 del_w_to_one = True
 
@@ -56,7 +56,7 @@ for cfg in cfgs:
         delayed = True
     else:
         delayed = False
-    model = one_neu_dynamics(num_input=cfg['input_size'], scale=cfg['scale'], rt=cfg['rt'], aw=cfg['aw_time'], interval=cfg['aw_time'],
+    model = one_neu_dynamics(num_input=cfg['input_size'], scale=cfg['scale'], rt=cfg['rt']  , interval=cfg['aw_time'],
                             learning_rule=cfg['learning_rule'], delayed=delayed,
                             lr=cfg['lr'], tau=30, d_lr=.1, synaptic_limit=cfg['synaptic_limit'],
                             slow_variable_limit=cfg['synaptic_limit'], max_delay=cfg['max_delay'], b=cfg['b'],
