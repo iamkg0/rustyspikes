@@ -46,6 +46,20 @@ class Gatherer:
                 self.weights[counter].append(self.model.syn_by_edge[w].get_delay)
         self.timer += res
 
+    def gather_spikes_only(self):
+        for i in self.model.show_config()['Neurons']:
+            self.spikes[i].append(self.model.neurons[i].get_spike_status())
+
+    def convert_spikes_for_raster(self):
+        raster = [[] for i in self.model.show_config()['Neurons']]
+        sps = np.array(self.spikes)
+        print(sps.shape)
+        for i in range(sps.shape[0]):
+            for j in range(sps.shape[1]):
+                if sps[i,j] > 0:
+                    raster[i].append(j * res)
+        return raster
+
     def get_stats(self, pre_ids = None, post_ids = None, weight_ids = None, timings=None):
         if not isinstance(timings, list) or not isinstance(timings, np.ndarray):
             timings = list(range(len(self.vs[0])))
@@ -169,6 +183,8 @@ def draw_stats_gatherer(pre_vs, pre_impulses, pre_Is, post_vs, post_impulses, po
     post_inp_is.set_title('Postsynaptic input current')
     weights.set_title('Weight changes')
     plt.show()
+
+
 
 '''
 Single synapse simulation:

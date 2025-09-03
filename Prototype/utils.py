@@ -4,6 +4,7 @@ import json
 import pickle as pkl
 
 def read_config(config):
+    # LEGACY (and useless)
     with open(config) as f:
         data = f.read()
     return json.loads(data)
@@ -12,6 +13,7 @@ def read_config(config):
 def save_model(model, path):
     with open(path, 'wb') as saving:
         pkl.dump(model, saving, pkl.HIGHEST_PROTOCOL)
+        print('Model saved at ' + path)
 
 def load_model(path):
     with open(path, 'rb') as loading:
