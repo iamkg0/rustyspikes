@@ -112,7 +112,7 @@ class Gatherer:
         plt.grid(True)
         ax.set_yticks(np.arange(0, self.model.num_neurons()))
         plt.ylim(-1, self.model.num_neurons())
-        plt.xlim(0, time)
+        plt.xlim(-1, time+1)
         data = self.convert_spikes_for_raster()
         plt.eventplot(data)
         plt.xlabel('time, ms')
@@ -120,10 +120,13 @@ class Gatherer:
         plt.show()
 
 
-def draw_weight_matrix(model,fheight=5, fwidth=5, dpi=80, fontsize=7):
+def draw_weight_matrix(model,fheight=5, fwidth=5, dpi=80, fontsize=7, nan_for_abscence=True):
     matrix = np.zeros((model.num_neurons(), model.num_neurons()))
+    if nan_for_abscence:
+        for i in range(matrix.shape[0]):
+            matrix[i] = np.array([None for i in range(matrix.shape[0])])
     for i in model.syn_by_edge.keys():
-        matrix[i[0], i[1]] = model.syn_by_edge[i].w
+        matrix[i[0], i[1]] = round(model.syn_by_edge[i].w, 2)
 
     visualize_confusion_matrix(matrix, name='Weights', ylabel='Presynaptic', xlabel='Postsynaptic', fheight=fheight, fwidth=fwidth, dpi=dpi, fontsize=fontsize)
 

@@ -6,7 +6,7 @@ class Neuron:
     def __init__(self, **kwargs):
         self.resolution = kwargs.get('resolution', .1)
         self.noise = kwargs.get('noise', 0)
-        self.tau = kwargs.get('tau', 30)
+        self.tau = kwargs.get('tau', 10)
         self.syn_out = kwargs.get('syn_out', True)
         self.I = kwargs.get('I', 0)
         self.spiked = False
