@@ -53,7 +53,6 @@ class Gatherer:
     def convert_spikes_for_raster(self):
         raster = [[] for i in self.model.show_config()['Neurons']]
         sps = np.array(self.spikes)
-        print(sps.shape)
         for i in range(sps.shape[0]):
             for j in range(sps.shape[1]):
                 if sps[i,j] > 0:
@@ -103,6 +102,20 @@ class Gatherer:
         if not timings:
             timings = range(len(self.pre_vs)-1)
         return self.pre_vs[timings], self.pre_impulses[timings], self.pre_Is[timings], self.post_vs[timings], self.post_impulses[timings], self.post_Is[timings], self.ws[timings]
+    
+
+    def draw_raster(self, time, fheight=5, fwidth=25, dpi=200):
+        fig, ax = plt.subplots()
+        fig.set_figwidth(fwidth)
+        fig.set_figheight(fheight)
+        fig.set_dpi(dpi)
+        plt.grid(True)
+        ax.set_yticks(np.arange(0,15))
+        plt.ylim(-1, self.model.num_neurons())
+        plt.xlim(0, time)
+        data = self.convert_spikes_for_raster()
+        plt.eventplot(data)
+        plt.show()
 
     
 def draw_convergence(data, total=True):
