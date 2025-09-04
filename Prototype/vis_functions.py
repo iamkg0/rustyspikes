@@ -110,12 +110,23 @@ class Gatherer:
         fig.set_figheight(fheight)
         fig.set_dpi(dpi)
         plt.grid(True)
-        ax.set_yticks(np.arange(0,15))
+        ax.set_yticks(np.arange(0, self.model.num_neurons()))
         plt.ylim(-1, self.model.num_neurons())
         plt.xlim(0, time)
         data = self.convert_spikes_for_raster()
         plt.eventplot(data)
+        plt.xlabel('time, ms')
+        plt.ylabel('neurons')
         plt.show()
+
+
+def draw_weight_matrix(model,fheight=5, fwidth=5, dpi=80, fontsize=7):
+    matrix = np.zeros((model.num_neurons(), model.num_neurons()))
+    for i in model.syn_by_edge.keys():
+        matrix[i[0], i[1]] = model.syn_by_edge[i].w
+
+    visualize_confusion_matrix(matrix, name='Weights', ylabel='Presynaptic', xlabel='Postsynaptic', fheight=fheight, fwidth=fwidth, dpi=dpi, fontsize=fontsize)
+
 
     
 def draw_convergence(data, total=True):
@@ -545,3 +556,53 @@ if __name__ == "__main__":
     fig, ax = plt.subplots()
     bar_plot(ax, data, total_width=.8, single_width=.9)
     plt.show()
+
+
+
+
+
+
+def visualize_confusion_matrix(confusion_matrix, name="Confusion matrix", xlabel="ground truth", ylabel="predicted", cmap='GnBu',
+                               fheight=25, fwidth=25, dpi=200, fontsize=14):
+    """
+    Visualizes confusion matrix
+    
+    confusion_matrix: np array of ints, x axis - predicted class, y axis - actual class
+                      [i][j] should have the count of samples that were predicted to be class i,
+                      but have j in the ground truth
+                     
+    """
+    # Adapted from 
+    # https://stackoverflow.com/questions/2897826/confusion-matrix-with-number-of-classified-misclassified-instances-on-it-python
+    assert confusion_matrix.shape[0] == confusion_matrix.shape[1]
+    size = confusion_matrix.shape[0]
+    fig = plt.figure(figsize=(fheight,fwidth), dpi=dpi)
+    plt.title(name)
+    plt.ylabel(ylabel)
+    plt.xlabel(xlabel)
+    res = plt.imshow(confusion_matrix, cmap=cmap, interpolation='nearest')
+    cb = fig.colorbar(res)
+    plt.xticks(np.arange(size))
+    plt.yticks(np.arange(size))
+    for i, row in enumerate(confusion_matrix):
+        for j, count in enumerate(row):
+            plt.text(j, i, count, fontsize=fontsize, horizontalalignment='center', verticalalignment='center')
+    
+def build_confusion_matrix(predictions, ground_truth):
+    """
+    Builds confusion matrix from predictions and ground truth
+
+    predictions: np array of ints, model predictions for all validation samples
+    ground_truth: np array of ints, ground truth for all validation samples
+    
+    Returns:
+    np array of ints, (10,10), counts of samples for predicted/ground_truth classes
+    """
+    
+    confusion_matrix = np.zeros((10,10), np.int)
+    for step in range(len(predictions)):
+        i = predictions[step]
+        j = ground_truth[step]
+        confusion_matrix[i][j] += 1
+    # TODO: Implement filling the prediction matrix
+    return confusion_matrix
