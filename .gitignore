@@ -4,8 +4,8 @@ Prototype/logs
 backup
 pics
 Prototype/notes
-# Prototype/models
-# *.ipynb
+Prototype/models
+*.ipynb
 *.html
 
 # Added by cargo

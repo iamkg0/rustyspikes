@@ -183,8 +183,8 @@ class Spikes_at_will(Neuron):
         self.silenced = False
     
     def dynamics(self):
-        if self.silenced:
-            return 0
+        # if self.silenced:
+        #     return 0
         self.refresh_cooldown -= self.resolution
         self.v = 0
         if not self.spike_occured:
