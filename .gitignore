@@ -7,9 +7,9 @@ Prototype/notes
 Prototype/models
 *.ipynb
 *.html
-Prototype
+# Prototype
 
 # Added by cargo
-# qwe
+
 /target
 
