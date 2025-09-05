@@ -4,7 +4,7 @@ Prototype/logs
 backup
 pics
 Prototype/notes
-Prototype/models
+# Prototype/models
 # *.ipynb
 *.html
 
