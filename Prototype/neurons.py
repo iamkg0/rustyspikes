@@ -180,8 +180,11 @@ class Spikes_at_will(Neuron):
         self.refresh_cooldown = self.refresh_time
         self.spike_occured = False
         self.v = 0
+        self.silenced = False
     
     def dynamics(self):
+        if self.silenced:
+            return 0
         self.refresh_cooldown -= self.resolution
         self.v = 0
         if not self.spike_occured:
@@ -207,6 +210,12 @@ class Spikes_at_will(Neuron):
         self.awaiting_time = kwargs.get('awaiting_time', self.awaiting_time)
         self.refresh_time = kwargs.get('refresh_time', self.refresh_time)
         self.refresh()
+
+    def turn_off(self):
+        self.silenced = True
+    
+    def turn_on(self):
+        self.silenced = False
 
 
 class DirectNeuron(Neuron):

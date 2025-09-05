@@ -231,6 +231,20 @@ class SNNModel:
         '''
         self.syn_by_edge[synapse.get_ids()] = synapse
 
+    def remove_neurons(self, id):
+        if type(id) == int:
+            id = [id]
+        for i in id:
+            pre_ids = self.get_presyn_neurons_ids(i)
+            for j in pre_ids:
+                del self.syn_by_edge[j, i]
+            post_ids = self.get_postsyn_neurons_ids(i)
+            for j in post_ids:
+                del self.syn_by_edge[i, j]
+            del self.neurons[i]
+
+
+
     def set_rule_to_all(self, rule=None):
         for i in self.syn_by_edge:
             self.syn_by_edge[i].change_learning_rule(rule)

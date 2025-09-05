@@ -27,6 +27,17 @@ def sampler(num_inputs=10, num_rand_patterns=2):
     return patterns, num_inputs, num_patterns
 
 
+def reverse_signal(model, stimulus_size=5):
+    '''
+    Switches order of SAW neurons spiking to opposite
+    Input SAW neurons must have smallest id values
+    '''
+    timings = []
+    for i in range(stimulus_size):
+        timings.append(model[i].awaiting_time)
+    for i in range(stimulus_size):
+        model[i].awaiting_time = timings[stimulus_size - i - 1]
+
 
 '''
 log handler

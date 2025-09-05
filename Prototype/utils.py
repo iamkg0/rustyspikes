@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import json
 import pickle as pkl
+import copy
 
 def read_config(config):
     # LEGACY (and useless)
@@ -21,3 +22,6 @@ def load_model(path):
         print('Loaded the following model:')
         print(model.show_config())
     return model
+
+def clone_model(model):
+    return copy.deepcopy(model)
