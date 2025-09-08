@@ -35,6 +35,12 @@ class Neuron:
     def spike_trace_unlimited(self):
         self.impulse += 1
         self.spiked = True
+
+    def switch_synaptic_limit(self, limit):
+        if limit:
+            self.spike_trace_choice = self.spike_trace_limited
+        else:
+            self.spike_trace_choice = self.spike_trace_unlimited
     
     '''
     Update input current:
