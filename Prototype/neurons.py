@@ -19,6 +19,10 @@ class Neuron:
         self.cum_current = 0
         self.id = kwargs.get('id', None)
         self.preset = kwargs.get('preset', None)
+        self.inits = {'noise': self.noise, 'tau': self.tau, 'syn_out': self.syn_out, 'I': self.I, 'spiked': self.spiked,
+                      'impulse': self.impulse, 'synaptic_limit': self.synaptic_limit, 'cum_current': self.cum_current,
+                      'id': self.id, 'preset': self.preset}
+        self.default_vars = {}
 
     '''
     Synaptic output related functions:
@@ -108,6 +112,11 @@ class Izhikevich(Neuron):
         self.d = param_list[idx][3]
         self.v = -70
         self.u = self.b * self.v
+        self.inits['a'] = self.a
+        self.inits['b'] = self.b
+        self.inits['c'] = self.c
+        self.inits['d'] = self.d
+        self.default_vars = {'v': self.v, 'u': self.u}
         
     def dynamics(self):
         self.v += self.resolution*(0.04*self.v**2 + 5*self.v + 140 - self.u + self.I) + random.uniform(-self.noise, self.noise)
