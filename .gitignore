@@ -9,6 +9,9 @@ Prototype/models
 *.html
 # Prototype
 
+# Paper specific
+!LATER_refactored.ipynb
+
 # Added by cargo
 
 /target

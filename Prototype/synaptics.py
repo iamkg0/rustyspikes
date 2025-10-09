@@ -182,11 +182,11 @@ class Delayed_synapse(Synapse):
             self.post_spiked_moment = 0
         self.post_spiked_moment += 1
         if not freeze_delays:
-            self.sophisticated_rule(d_lr=self.d_lr)
+            self.LateR(d_lr=self.d_lr)
         self.learning_rules[self.learning_rule]()
 
-    def sophisticated_rule(self, d_lr=1, asymmetry=5):
-        delay = self.delay / self.max_delay # !!!!!!!!!!!!!!!!!!!
+    def LateR(self, d_lr=1, asymmetry=5):
+        delay = self.delay / self.max_delay
         moment = int(self.max_delay - self.delay - self.b)
         self.delay_debug = delay
         dd = 0
@@ -200,14 +200,6 @@ class Delayed_synapse(Synapse):
             #print('+, ',dd, '-, ',self.dd, f'del {self.delay}, pre_sp_m {self.post_spiked_moment}', f'del_deb {self.delay_debug}')
             self.dd = dd # FOR DEBUG
             self.delay += dd * d_lr 
-
-            #b = 1 / self.b
-            #self.delta_b =  b * (self.pre_impulse_queue[moment] - 1) * self.postsynaptic.I
-            #self.b -= self.delta_b
-            #b = self.b / (self.max_delay - self.b)
-            #delta_b = (b/self.postsynaptic.I)**2
-            #self.b += delta_b
-            #self.delta_b = b
 
 
 
