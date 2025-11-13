@@ -43,9 +43,15 @@ class SNNModel:
         return conf
     
     def get_first_synapse(self):
+        '''
+        No idea
+        '''
         return self.syn_by_edge[next(iter(self.syn_by_edge))]
     
     def get_neuron_stats(self, id):
+        '''
+        Returns tuple of voltage, trace and input current of neuron by id
+        '''
         v = self.neurons[id].get_voltage_dynamics()
         impulse = self.neurons[id].get_output_current()
         I = self.neurons[id].get_input_current()
@@ -95,6 +101,10 @@ class SNNModel:
         return self.graph
     
     def get_neurons_by_edge(self, edge):
+        '''
+        Returns tuple of neurons (pre, post) by edge of synapse
+        Useless, i dont really remember what i needed it for
+        '''
         return self.neurons[edge[0]], self.neurons[edge[1]]
 
     def get_presyn_neurons_ids(self, id):
@@ -129,9 +139,15 @@ class SNNModel:
         return [*pres, *posts]
     
     def get_output_neurons(self):
+        '''
+        Returns dict of output neurons
+        '''
         return self.output_neurons
     
     def get_output_ids(self):
+        '''
+        Returns list of ids of output neurons
+        '''
         ids = []
         for i in self.output_neurons.keys():
             ids.append(i)
@@ -150,6 +166,10 @@ class SNNModel:
         return synapses
     
     def get_outgoing_synapses(self, id):
+        '''
+        Returns list of synapses obj, in which neuron of certain id is
+        presynaptic
+        '''
         synapses = []
         postsyn_neurons_ids = self.get_postsyn_neurons_ids(id)
         for i in postsyn_neurons_ids:
@@ -157,6 +177,11 @@ class SNNModel:
         return synapses
     
     def get_response(self, just_timings=True):
+        '''
+        Returns list of spikes
+        if just_timings == True, list contains only 1 and 0
+        if just_timings == False, contains float values of traces
+        '''
         response = []
         if just_timings:
             for i in self.output_neurons.keys():
@@ -172,6 +197,7 @@ class SNNModel:
     '''
     def generate_model(self, config='config.txt'):
         '''
+        Legacy. Rotten long time ago
         Generates the model according to
         certain configuration
         '''
@@ -204,6 +230,9 @@ class SNNModel:
             self.graph[self.neurons[syns[0]]][self.neurons[syns[1]]]['weight'] = self.syn_by_edge[syns].get_weight()
 
     def tick(self, freeze_delays=False):
+        '''
+        Iteration
+        '''
         for i in self.neurons:
             self.neurons[i].dynamics()
             self.neurons[i].apply_cum_current()
@@ -232,6 +261,9 @@ class SNNModel:
         self.syn_by_edge[synapse.get_ids()] = synapse
 
     def remove_neurons(self, id):
+        '''
+        Kicks neurons and appropriate synapses from the server
+        '''
         if type(id) == int:
             id = [id]
         for i in id:
@@ -246,31 +278,54 @@ class SNNModel:
 
 
     def set_rule_to_all(self, rule=None):
+        '''
+        Switch local plasticity rule of each synapse
+        '''
         for i in self.syn_by_edge:
             self.syn_by_edge[i].change_learning_rule(rule)
 
     def set_lr_to_all(self, lr=.1):
+        '''
+        Change learning rate of each synapse
+        '''
         for i in self.syn_by_edge:
             self.syn_by_edge[i].change_lr(lr)
 
     def set_noise(self, noise=0):
+        '''
+        Change noise ranges of each neuron
+        '''
         for i in self.neurons.keys():
             self.neurons[i].noise = noise
 
     def set_random_weights(self, ranges=(0,1)):
+        '''
+        Randomize weights in the whole model
+        '''
         for i in self.syn_by_edge.keys():
             self.syn_by_edge[i].w = np.random.uniform(*ranges)
 
     def set_weight_manually(self, id, weight):
+        '''
+        Set weight of desired synapse
+        '''
         self.syn_by_edge[id].set_weight_manually(weight)
 
     def set_d_lr(self, d_lr, ids=None):
+        '''
+        Set delay of desired synapses
+        May cause malfunctions if type is not DelayedSynapse
+        '''
         if not ids:
             ids = [i for i in self.syn_by_edge.keys()]
         for syn in ids:
             self.syn_by_edge[syn].d_lr = d_lr
 
     def set_slow_var_limit(self, limit, ids=None):
+        '''
+        Manually change limit of slow variable
+        Appropriate for tSTDP learning rule
+        '''
         if not ids:
             ids = [i for i in self.syn_by_edge.keys()]
         for syn in ids:
@@ -284,44 +339,16 @@ class SNNModel:
             i.scale = scale
 
     def define_output(self, ids):
+        '''
+        Set neurons to be rendered as output
+        Purely QoL feature
+        '''
         if isinstance(ids, int):
             ids = [ids]
         for id in ids:
             self.output_neurons[id] = self.neurons[id]
         for i in self.output_neurons.keys():
             self.preoutput_synapses[i] = self.get_incoming_synapses(i)
-
-    
-    '''
-    SpikeProp algorithm
-    '''
-    def spikeprop(self, t_d, lr=0.01):
-        '''
-        t_d - array of desired timings
-        '''
-        pass
-
-    def calculate_delta_output(self, t_d, ids):
-        t_a = self.find_latest_spike_timings_output()
-        diff_timings = (t_d - t_a)
-        
-
-
-    def find_latest_spike_timings_output(self, ids):
-        t_a = []
-        for neu_id in self.preoutput_synapses.keys():
-            t_a.append(self.preoutput_synapses[neu_id][0].get_latest_spike_timing_post())
-        return np.array(t_a)
-    
-    def lmse(self, t_a, t_d):
-        '''
-        Least Mean Squares Error-function
-        t_a - np.array of actual timings
-        t_d - np.array of desired timings
-        '''
-        error = .5 * np.sum((t_a - t_d)**2)
-        return error
-
     
 
     '''
@@ -342,6 +369,7 @@ class SNNModel:
 
     def extract_syn_layer_props(self, syn_layer):
         '''
+        Legacy. Rotten long time ago
         Extracts properties. Works for layers only
         Used in generate_model()
         '''
@@ -352,6 +380,7 @@ class SNNModel:
 
     def create_neuron(self, id, type, I, preset, color, resolution=.1):
         '''
+        Legacy. Rotten long time ago
         Creates a new neuron
         Used in generate_model()
         '''
@@ -362,6 +391,7 @@ class SNNModel:
     
     def create_synapse(self, pre_id, post_id, syn_type):
         '''
+        Legacy. Rotten long time ago
         Creates a new synapse
         Used in generate_model()
         '''
@@ -372,6 +402,7 @@ class SNNModel:
 
     def create_layer(self, id, cfg_neu, color):
         '''
+        Legacy. Rotten long time ago
         Creates a layer of neurons by config
         Used in generate_model()
         '''
@@ -390,6 +421,7 @@ class SNNModel:
     
     def idxs(self):
         '''
+        Legacy. Rotten long time ago
         Adds indexes to neurons
         Used in generate_model()
         '''
@@ -400,6 +432,7 @@ class SNNModel:
 
     def get_particular_layers(self, layers):
         '''
+        Legacy. Rotten long time ago
         Misc for generate_model()
         '''
         ls = layers.split(' ')
@@ -407,6 +440,7 @@ class SNNModel:
     
     def connect_inside(self, layer_req, syn_type, num_con):
         '''
+        Legacy. Rotten long time ago
         Connects neurons inside the layer
         Used in generate_model()
         '''
@@ -423,6 +457,7 @@ class SNNModel:
 
     def connect_between(self, layers_req, syn_type, method, num_con):
         '''
+        Legacy. Rotten long time ago
         Connects layers of neurons
         Used in generate_model()
         '''
@@ -432,6 +467,7 @@ class SNNModel:
 
     def fc(self, pre, post, syn_type, num_con):
         '''
+        Legacy. Rotten long time ago
         Algorithm for creating fully-connected layer
         of synapses
         Used in generate_model()
@@ -446,6 +482,7 @@ class SNNModel:
 
     def rc(self, pre, post, syn_type, num_con):
         '''
+        Legacy. Rotten long time ago
         Algorithm for creating random connections
         Used in generate_model()
         '''
