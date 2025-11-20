@@ -17,15 +17,12 @@ def extract_from_file_ae3(directory, filename):
     return data
 
 def event_puller_ae3(data):
-    time_slice = [[], [],[]]
-    timing = data[0][0]
     c = 0
     data_iterator = iter(data[0])
     for i in data_iterator:
         timing = i
         time_slice = [[],[],[]]
         while timing == i:
-            # print(time_slice)
             time_slice[0].append(data[1][c])
             time_slice[1].append(data[2][c])
             time_slice[2].append(data[3][c])
