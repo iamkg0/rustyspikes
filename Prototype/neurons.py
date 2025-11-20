@@ -248,3 +248,18 @@ class DirectNeuron(Neuron):
         self.impulse = impulse
 
     
+class EventNeuron(Neuron):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.v = 0
+        self.I = kwargs.get('I', 0)
+        self.impulse = self.I
+
+    def dynamics(self):
+        return self.impulse
+    
+    def listen(self, event):
+        if event:
+            self.spike_trace_choice()
+        else:
+            self.spike_decrease()
