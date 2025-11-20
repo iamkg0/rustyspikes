@@ -24,6 +24,8 @@ class SNNModel:
         self.output_neurons = {}
         self.preoutput_synapses = {}
 
+        self.event_listeners = [] # ids of event listeners
+
         '''
         Get info:
         '''
@@ -499,6 +501,23 @@ class SNNModel:
         Helps to avoid if-else statements. Lmao
         '''
         pass
+
+
+    '''
+    event-related
+    '''
+    def define_listeners(self):
+        for i in self.neurons.values():
+            if i.event_listener:
+                self.event_listeners.append(i.id)
+
+    def listen(self, event):
+        e = []
+        for j in range(len(event[0])):
+            e.append(event[0][j] * event[1][j])
+        for i in self.event_listeners:
+            self.neurons[i].listen(e)
+
 
     '''
     For advanced visuals:

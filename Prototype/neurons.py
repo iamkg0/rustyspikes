@@ -22,6 +22,7 @@ class Neuron:
         self.inits = {'noise': self.noise, 'tau': self.tau, 'syn_out': self.syn_out, 'I': self.I, 'spiked': self.spiked,
                       'impulse': self.impulse, 'synaptic_limit': self.synaptic_limit, 'cum_current': self.cum_current,
                       'id': self.id, 'preset': self.preset}
+        self.event_listener = False
         self.default_vars = {}
 
     '''
@@ -88,6 +89,7 @@ class Neuron:
     
     def get_id(self):
         return self.id
+
 
 
 class Izhikevich(Neuron):
@@ -254,12 +256,13 @@ class EventNeuron(Neuron):
         self.v = 0
         self.I = kwargs.get('I', 0)
         self.impulse = self.I
+        self.event_listener = True
 
     def dynamics(self):
         return self.impulse
     
     def listen(self, event):
-        if event:
+        if self.id in event:
             self.spike_trace_choice()
         else:
             self.spike_decrease()
