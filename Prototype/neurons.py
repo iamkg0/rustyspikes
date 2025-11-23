@@ -25,6 +25,8 @@ class Neuron:
         self.event_listener = False
         self.default_vars = {}
 
+        self.strdp_impulse = 0
+
     '''
     Synaptic output related functions:
     '''
@@ -46,6 +48,14 @@ class Neuron:
             self.spike_trace_choice = self.spike_trace_limited
         else:
             self.spike_trace_choice = self.spike_trace_unlimited
+
+
+    def strdp_spike_decrease(self, y=65):
+        if self.get_spike_status():
+            self.strdp_impulse += 1
+        else:
+            self.strdp_impulse -= (y - self.impulse / self.tau) * self.resolution
+        return self.strdp_impulse
     
     '''
     Update input current:
@@ -234,6 +244,22 @@ class Spikes_at_will(Neuron):
     def turn_on(self):
         self.silenced = False
 
+
+class SpikeOnce(Neuron):
+    def __init__(self):
+        super().__init__()
+        self.do_i_spike = False
+
+    def dynamics(self):
+        if self.do_i_spike:
+            self.spike_trace_choice()
+            self.do_i_spike = False
+        else:
+            self.spike_decrease()
+        return self.impulse
+
+    def generate_spike(self):
+        self.do_i_spike = True
 
 class DirectNeuron(Neuron):
     def __init__(self, **kwargs):

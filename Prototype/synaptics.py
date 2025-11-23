@@ -48,6 +48,7 @@ class Synapse:
         if self.postsynaptic.get_spike_status():
             dw += self.presynaptic.get_output_current() * (1 - self.w) * self.lr
         self.w += dw
+        return dw
 
     '''
     Triplet-STDP related functions:
@@ -72,6 +73,7 @@ class Synapse:
         if self.postsynaptic.get_spike_status():
             dw += self.presynaptic.get_output_current() * (1 - self.w) * self.lr
         self.w += dw
+        return dw
 
     def t_stdp_forgetting(self, asymmetry=1):
         self.compute_slow_variable()
@@ -88,11 +90,13 @@ class Synapse:
     '''
 
     def strdp(self, asymmetry=1, y=95):
+        # strdp_trace = self.presynaptic.strdp_spike_decrease(y)
         if self.postsynaptic.get_spike_status():
             potentiation = self.presynaptic.get_output_current() * (1 - self.w)
-            depression = asymmetry * self.w / (1 + y * self.presynaptic.get_output_current())
+            depression = asymmetry * self.w / (1 + self.postsynaptic.strdp_impulse)
             dw = potentiation - depression
             self.w += dw * self.lr
+            return dw
 
 
     '''
