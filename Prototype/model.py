@@ -17,6 +17,7 @@ class SNNModel:
         #self.synapses = {}
         self.l_rules = {}
         self.syn_by_edge = {}
+        self.syn_by_num = {}
         self.graph = nx.DiGraph()
         self.color_map = []
         self.color_set = kwargs.get("color_set", ("red", "green", "blue", "yellow", "cyan", "pink", "brown"))
@@ -50,6 +51,17 @@ class SNNModel:
         '''
         return self.syn_by_edge[next(iter(self.syn_by_edge))]
     
+    def enum_synapses(self):
+        for i, (k,v) in enumerate(self.syn_by_edge.items()):
+            self.syn_by_num[i] = k
+    
+    def get_syn(self, idx):
+        '''
+        Returns synapse by its number
+        '''
+        return self.syn_by_edge[self.syn_by_num[idx]]
+
+
     def get_neuron_stats(self, id):
         '''
         Returns tuple of voltage, trace and input current of neuron by id
@@ -261,6 +273,7 @@ class SNNModel:
         after the model architecture is complete)
         '''
         self.syn_by_edge[synapse.get_ids()] = synapse
+        self.enum_synapses()
 
     def remove_neurons(self, id):
         '''
