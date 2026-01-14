@@ -273,7 +273,6 @@ class SNNModel:
         after the model architecture is complete)
         '''
         self.syn_by_edge[synapse.get_ids()] = synapse
-        self.enum_synapses()
 
     def remove_neurons(self, id):
         '''
@@ -381,6 +380,7 @@ class SNNModel:
             self.graph.add_node(self.neurons[i])
         for j in self.syn_by_edge:
             self.graph.add_edge(*self.get_neurons_by_edge(j), weight=self.syn_by_edge[j].get_weight())
+        self.enum_synapses()
 
     def extract_syn_layer_props(self, syn_layer):
         '''
