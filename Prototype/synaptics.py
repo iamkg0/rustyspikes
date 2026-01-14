@@ -48,7 +48,7 @@ class Synapse:
         if self.postsynaptic.get_spike_status():
             dw += self.presynaptic.get_output_current() * (1 - self.w) * self.lr
         self.w += dw
-        return dw
+        # return dw
 
     '''
     Triplet-STDP related functions:
