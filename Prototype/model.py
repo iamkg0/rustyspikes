@@ -26,6 +26,9 @@ class SNNModel:
         self.preoutput_synapses = {}
 
         self.event_listeners = [] # ids of event listeners
+        self.inputs = []
+
+        self.note = ''
 
         '''
         Get info:
@@ -99,7 +102,7 @@ class SNNModel:
         
     def get_delays(self, ids=None):
         '''
-        returns list of given synapses, list
+        returns delays of given synapses, list
         in case ids is None of False, gathers values from all synapses
         '''
         delays = []
@@ -204,6 +207,37 @@ class SNNModel:
             for i in self.output_neurons.keys():
                 response.append(self.output_neurons[i].impulse)
         return response
+    
+    def get_deadends(self):
+        '''
+        Returns list of neurons that lack postsynaptic connections
+        '''
+        deadends = []
+        for i in self.neurons.keys():
+            if not self.get_outgoing_synapses(i):
+                deadends.append(i)
+        return deadends
+    
+    def get_sources(self):
+        '''
+        Returns list of neurons that lack presynaptic connections
+        '''
+        sources = []
+        for i in self.neurons.keys():
+            if not self.get_incoming_synapses(i):
+                sources.append(i)
+        return sources
+    
+    def get_outsiders(self):
+        '''
+        Returns list of neurons that are not connected to other neurons
+        '''
+        outsiders = []
+        for i in self.neurons.keys():
+            if not self.get_incoming_synapses(i) and not self.get_outgoing_synapses(i):
+                outsiders.append(i)
+        return outsiders
+
 
    
     '''
@@ -363,11 +397,39 @@ class SNNModel:
             self.output_neurons[id] = self.neurons[id]
         for i in self.output_neurons.keys():
             self.preoutput_synapses[i] = self.get_incoming_synapses(i)
+
+    def drop_impulses(self, ids=None):
+        '''
+        set neu impulses to 0
+        NOT TESTED!!!
+        '''
+        if ids:
+            for i in ids:
+                self.neurons[i].impulse = 0
+        else:
+            for i in self.neurons.keys():
+                self.neurons[i].impulse = 0
     
 
     '''
     Misc:
     '''
+    def change_note(self, note=''):
+        '''
+        Adds note, str
+        Previous one will be erased
+        '''
+        self.note = note
+
+    def add_note(self, note=''):
+        '''
+        Adds note after existing one, str
+        '''
+        self.note += note
+
+    def show_note(self):
+        return self.note
+
     def reload_graph(self):
         '''
         re-initializes graph.

@@ -112,6 +112,19 @@ def delayed_10_inputs(rt=100, aw=10, dels=100, m_delay=300, scale=6, b=7.4, d_lr
     return snn
 
 
+def delayed_ndim_Izhikevich(ndims = 3, awaiting_times=[0,5,10], refresh_times=[100,100,100], starting_delays=[0,0,0],
+                        max_delay=300, scale=5):
+    dsnn = SNNModel()
+    output_neu = Izhikevich(id=0)
+    dsnn.add_neuron(output_neu)
+    for i in range(ndims):
+        neu = Spikes_at_will(awaiting_time=awaiting_times[i], refresh_time=refresh_times[i], id=i+1)
+        syn = Delayed_synapse(neu, output_neu, delay=starting_delays[i], max_delay=max_delay, scale=scale, b=8)
+        dsnn.add_neuron(neu)
+        dsnn.add_synapse(syn)
+    dsnn.reload_graph()
+    return dsnn
+
 
 def delayed_single():
     '''

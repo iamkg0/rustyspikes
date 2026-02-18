@@ -192,7 +192,7 @@ class Delayed_synapse(Synapse):
     def LateR(self, d_lr=1, asymmetry=5):
         delay = self.delay / self.max_delay
         moment = int(self.max_delay - self.delay - self.b)
-        self.delay_debug = delay
+        # self.delay_debug = delay
         dd = 0
         if self.pre_spiked[moment]:
             dd -= (1 - self.postsynaptic.get_output_current()) * self.postsynaptic.get_output_current() * delay * asymmetry

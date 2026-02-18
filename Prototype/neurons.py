@@ -70,6 +70,9 @@ class Neuron:
         self.I = self.cum_current
         self.cum_current = 0
 
+    def set_noise(self, noise):
+        self.noise = noise
+
     '''
     Get info:
     '''
@@ -292,3 +295,27 @@ class EventNeuron(Neuron):
             self.spike_trace_choice()
         else:
             self.spike_decrease()
+
+
+
+class DirectCurrnet(Neuron):
+    '''
+    Causes crashes
+    Requires debug
+    '''
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.spiked = True
+        self.v = 0
+        self.direct_current=kwargs.get('direct_current', 10)
+        self.impulse = self.direct_current
+        self.I = self.direct_current
+
+    def dynamics(self):
+        self.impulse=self.direct_current
+        self.I = self.direct_current
+        return self.impulse
+    
+    def set_current(self, I):
+        self.impulse = I
+        self.direct_current = I
