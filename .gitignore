@@ -9,6 +9,8 @@ Prototype/models
 *.html
 *.eps
 *.png
+*.txt
+*.csv
 # Prototype
 
 # Paper specific

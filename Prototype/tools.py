@@ -2,6 +2,10 @@ import numpy as np
 import os
 import csv
 import pandas as pd
+
+# LMAO:
+import math
+np.math = math
 '''
 Sample random inputs
 Stores in patterns (dict)
