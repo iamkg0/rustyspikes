@@ -439,7 +439,7 @@ class SNNModel:
         '''
         self.graph = nx.DiGraph()
         for i in self.neurons:
-            self.graph.add_node(self.neurons[i])
+            self.graph.add_node(self.neurons[i], pos=self.neurons[i].coords.tolist())
         for j in self.syn_by_edge:
             self.graph.add_edge(*self.get_neurons_by_edge(j), weight=self.syn_by_edge[j].get_weight())
         self.enum_synapses()
@@ -576,7 +576,60 @@ class SNNModel:
         Helps to avoid if-else statements. Lmao
         '''
         pass
+    
+    def find_distance(self, neu1, neu2):
+        coords1 = self.neurons[neu1].get_coords()
+        coords2 = self.neurons[neu2].get_coords()
+        dist = (coords1[0]-coords1[1])**2 + (coords2[0]-coords2[1])**2
+        return dist
+    
 
+    def create_distance_matrix(self):
+        dists = np.zeros((len(self.neurons), len(self.neurons)))
+        for i in self.neurons:
+            for j in self.neurons:
+                if i != j:
+                    dists[i,j] = self.find_distance(i, j)
+        return dists
+
+
+
+
+    '''
+    Generate network
+    '''
+    def generate_network_local_connections(self, num_exc, num_inh, num_syn, coords_dim=1000, max_delay=500):
+        num_neu = num_exc+num_inh
+        for i in range(num_neu):
+            neu = Izhikevich(xy = np.random.randint(0, coords_dim, size=2))
+            self.add_neuron(neu)
+        dists = self.create_distance_matrix()
+        probs = np.ones_like(dists) - dists / np.sum(dists)
+        for presyn_idx in range(num_neu):
+            if presyn_idx < num_exc:
+                syn_type = False
+            else:
+                syn_type = True
+            to_exclude = [presyn_idx]
+            if self.get_presyn_neurons_ids(presyn_idx):
+                for i in range(len(self.get_presyn_neurons_ids(presyn_idx))):
+                    to_exclude.append(self.get_presyn_neurons_ids(presyn_idx)[i])
+            prob_connections = probs[presyn_idx]
+            prob_connections[to_exclude]*=0
+            prob_connections = prob_connections / np.sum(prob_connections)
+            to_connect = np.random.choice(np.arange(len(prob_connections)), size=num_syn, p=prob_connections)
+            for post_syn in to_connect:
+                synapse = Delayed_synapse(self.neurons[presyn_idx], self.neurons[post_syn], inhibitory=syn_type, max_delay=max_delay)
+                self.add_synapse(synapse)
+        self.reload_graph()
+        
+
+            
+        
+
+
+
+        
 
     '''
     event-related

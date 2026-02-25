@@ -1,4 +1,5 @@
 import numpy as np
+from collections import deque
 
 class Synapse:
     def __init__(self, presynaptic, postsynaptic, **kwargs):
@@ -155,9 +156,9 @@ class Delayed_synapse(Synapse):
         self.max_delay = int(self.max_delay / self.resolution)
         self.b = int(self.b / self.resolution)
         
-        self.pre_impulse_queue = [0 for i in range(self.max_delay)]
-        self.post_impulse_queue = [0 for i in range(self.max_delay)]
-        self.pre_spiked = [0 for i in range(self.max_delay)]
+        self.pre_impulse_queue = deque([0 for i in range(self.max_delay)], maxlen=self.max_delay)
+        self.post_impulse_queue = deque([0 for i in range(self.max_delay)], maxlen=self.max_delay)
+        self.pre_spiked = deque([0 for i in range(self.max_delay)], maxlen=self.max_delay)
         self.post_spiked_moment = 0
         self.d_lr = kwargs.get('d_lr', 1)
 
@@ -173,12 +174,12 @@ class Delayed_synapse(Synapse):
 
     def forward(self, freeze_delays=False):
         #print(self.delay)
-        self.pre_impulse_queue.pop(0)
-        self.pre_spiked.pop(0)
+        # self.pre_impulse_queue.pop(0)
+        # self.pre_spiked.pop(0)
         self.pre_impulse_queue.append(self.presynaptic.get_output_current())
         self.pre_spiked.append(self.presynaptic.get_spike_status())
         self.postsynaptic.accumulate_current(self.pre_impulse_queue[int(self.max_delay - self.delay)] * self.w * self.scale)
-        self.post_impulse_queue.pop(0)
+        # self.post_impulse_queue.pop(0)
         self.post_impulse_queue.append(self.postsynaptic.get_output_current())
 
         if self.postsynaptic.get_spike_status():
@@ -205,15 +206,71 @@ class Delayed_synapse(Synapse):
             self.dd = dd # FOR DEBUG
             self.delay += dd * d_lr 
 
-
-
     def get_delay(self):
         return self.delay
     
     def get_latest_spike_timing_post(self):
         return self.post_spiked_moment
+    
+    
+
+class DelayedExplicit(Synapse):
+    def __init__(self, presynaptic, postsynaptic, **kwargs):
+        super().__init__(presynaptic, postsynaptic, **kwargs)
+        self.presynaptic = presynaptic
+        self.postsynaptic = postsynaptic
+        self.delay = kwargs.get('delay', 0)
+        self.max_delay = kwargs.get('max_delay', 100)
+        self.b = kwargs.get('b', 0)
+
+        self.delay = int(self.delay / self.resolution)
+        self.max_delay = int(self.max_delay / self.resolution)
+        self.b = int(self.b / self.resolution)
+        
+        self.pre_delay_timers = []
+        self.pre_delay_trace = 0
+        self.auxiliary_trace = 0
+        
+        self.post_spiked_moment = 0
+        self.d_lr = kwargs.get('d_lr', 1)
+        # Debug:
+        self.dd = 0
+        self.delay_debug = 0
+        self.delta_b = 0
 
 
+    def forward(self, freeze_delays=False):
+        pass
+
+
+    def SLR(self, d_lr=1, asymmetry=5):
+        delay = self.delay / self.max_delay
+        moment = int(self.max_delay - self.delay - self.b)
+        # self.delay_debug = delay
+        dd = 0
+        if self.pre_spiked[moment]:
+            dd -= (1 - self.postsynaptic.get_output_current()) * self.postsynaptic.get_output_current() * delay * asymmetry
+            self.dd = dd # FOR DEBUG
+            self.delay += dd * d_lr
+
+        if self.postsynaptic.get_spike_status():
+            dd += (1 - self.pre_impulse_queue[moment]) * self.pre_impulse_queue[moment] * (1 - delay)
+            #print('+, ',dd, '-, ',self.dd, f'del {self.delay}, pre_sp_m {self.post_spiked_moment}', f'del_deb {self.delay_debug}')
+            self.dd = dd # FOR DEBUG
+            self.delay += dd * d_lr 
+
+
+    def compute_delayed_trace(self):
+        self.pre_delay_trace -= (self.pre_delay_trace / self.presynaptic.tau) * self.resolution
+
+
+    def compute_auxiliary_trace(self):
+        self.auxiliary_trace -= (self.auxiliary_trace / self.postsynaptic.tau) * self.resolution
+
+
+    def listen_spikes(self):
+        pass
+    
 
 
 

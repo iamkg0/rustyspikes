@@ -24,6 +24,7 @@ class Neuron:
                       'id': self.id, 'preset': self.preset}
         self.event_listener = False
         self.default_vars = {}
+        self.coords = kwargs.get('xy', (0,0))
 
         self.strdp_impulse = 0
 
@@ -73,6 +74,9 @@ class Neuron:
     def set_noise(self, noise):
         self.noise = noise
 
+    def set_coords(self, xy=(0, 0)):
+        self.coords = xy
+
     '''
     Get info:
     '''
@@ -102,6 +106,9 @@ class Neuron:
     
     def get_id(self):
         return self.id
+    
+    def get_coords(self):
+        return self.coords
 
 
 
