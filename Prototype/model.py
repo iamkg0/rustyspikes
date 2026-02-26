@@ -439,7 +439,7 @@ class SNNModel:
         '''
         self.graph = nx.DiGraph()
         for i in self.neurons:
-            self.graph.add_node(self.neurons[i], pos=self.neurons[i].coords.tolist())
+            self.graph.add_node(self.neurons[i], pos=self.neurons[i].coords)
         for j in self.syn_by_edge:
             self.graph.add_edge(*self.get_neurons_by_edge(j), weight=self.syn_by_edge[j].get_weight())
         self.enum_synapses()
@@ -601,7 +601,7 @@ class SNNModel:
     def generate_network_local_connections(self, num_exc, num_inh, num_syn, coords_dim=1000, max_delay=500):
         num_neu = num_exc+num_inh
         for i in range(num_neu):
-            neu = Izhikevich(xy = np.random.randint(0, coords_dim, size=2))
+            neu = Izhikevich(xy = np.random.randint(0, coords_dim, size=2).tolist())
             self.add_neuron(neu)
         dists = self.create_distance_matrix()
         probs = np.ones_like(dists) - dists / np.sum(dists)
