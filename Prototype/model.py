@@ -441,9 +441,10 @@ class SNNModel:
         '''
         self.graph = nx.DiGraph()
         for i in self.neurons:
-            self.graph.add_node(self.neurons[i], pos=self.neurons[i].coords)
+            self.graph.add_node(self.neurons[i].id, pos=self.neurons[i].coords)
         for j in self.syn_by_edge:
-            self.graph.add_edge(*self.get_neurons_by_edge(j), weight=self.syn_by_edge[j].get_weight())
+            neu1, neu2 = self.get_neurons_by_edge(j)
+            self.graph.add_edge(neu1.id, neu2.id, weight=self.syn_by_edge[j].get_weight())
         self.enum_synapses()
 
     def extract_syn_layer_props(self, syn_layer):
@@ -582,8 +583,8 @@ class SNNModel:
     def find_distance(self, neu1, neu2):
         coords1 = self.neurons[neu1].get_coords()
         coords2 = self.neurons[neu2].get_coords()
-        dist = (coords1[0]-coords1[1])**2 + (coords2[0]-coords2[1])**2
-        return dist
+        dist = np.sqrt((coords1[0]-coords2[0])**2 + (coords1[1]-coords2[1])**2)
+        return dist.item()
     
 
     def create_distance_matrix(self):
@@ -592,16 +593,26 @@ class SNNModel:
             for j in self.neurons:
                 if i != j:
                     dists[i,j] = self.find_distance(i, j)
+        # dists = dists.T
         self.distance_matrix = dists
         return dists
-
+    
+    def find_n_nearest(self, id, n):
+        variants = self.distance_matrix[id]
+        variants[id] = np.max(variants)
+        closest_ids = []
+        for i in range(n):
+            idx = np.argmin(variants)
+            variants[idx] = np.max(variants)
+            closest_ids.append(idx.item())
+        return closest_ids
 
 
 
     '''
     Generate network
     '''
-    def generate_network_local_connections(self, num_exc, num_inh, num_syn, coords_dim=1000, max_delay=500):
+    def generate_network_local_connections(self, num_exc, num_inh, num_syn, coords_dim=1000, max_delay=500, starting_delay=(100,300)):
         num_neu = num_exc+num_inh
         for i in range(num_neu):
             neu = Izhikevich(xy = np.random.randint(0, coords_dim, size=2).tolist())
@@ -618,11 +629,13 @@ class SNNModel:
                 for i in range(len(self.get_presyn_neurons_ids(presyn_idx))):
                     to_exclude.append(self.get_presyn_neurons_ids(presyn_idx)[i])
             prob_connections = probs[presyn_idx]
-            prob_connections[to_exclude]*=0
-            prob_connections = prob_connections / np.sum(prob_connections)
-            to_connect = np.random.choice(np.arange(len(prob_connections)), size=num_syn, p=prob_connections)
-            for post_syn in to_connect:
-                synapse = Delayed_synapse(self.neurons[presyn_idx], self.neurons[post_syn], inhibitory=syn_type, max_delay=max_delay)
+            prob_connections[to_exclude]=0
+            prob_connections = np.exp(prob_connections) / np.sum(np.exp(prob_connections))
+            # to_connect = np.random.choice(np.arange(len(prob_connections)), size=num_syn, p=prob_connections)
+            to_connect = np.argsort(prob_connections)[::-1][:num_syn]
+            # print(prob_connections, to_connect)
+            for post_syn in to_connect.tolist():
+                synapse = Delayed_synapse(self.neurons[presyn_idx], self.neurons[post_syn], inhibitory=syn_type, max_delay=max_delay, delay=random.randint(*starting_delay))
                 self.add_synapse(synapse)
         self.reload_graph()
         
