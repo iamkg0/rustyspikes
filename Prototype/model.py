@@ -28,6 +28,8 @@ class SNNModel:
         self.event_listeners = [] # ids of event listeners
         self.inputs = []
 
+        self.distance_matrix = None
+
         self.note = ''
 
         '''
@@ -590,6 +592,7 @@ class SNNModel:
             for j in self.neurons:
                 if i != j:
                     dists[i,j] = self.find_distance(i, j)
+        self.distance_matrix = dists
         return dists
 
 
