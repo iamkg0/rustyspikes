@@ -104,7 +104,12 @@ class Gatherer:
         return self.pre_vs[timings], self.pre_impulses[timings], self.pre_Is[timings], self.post_vs[timings], self.post_impulses[timings], self.post_Is[timings], self.ws[timings]
     
 
-    def draw_raster(self, time, fheight=5, fwidth=25, dpi=200):
+    def draw_raster(self, time, fheight=5, fwidth=25, dpi=200, notify=True, colors=None):
+        '''
+        Colors dont work, you shouldnt use it yet
+        '''
+        if notify:
+            print('Drawing raster')
         fig, ax = plt.subplots()
         fig.set_figwidth(fwidth)
         fig.set_figheight(fheight)
@@ -114,7 +119,10 @@ class Gatherer:
         plt.ylim(-1, self.model.num_neurons())
         plt.xlim(-1, time+1)
         data = self.convert_spikes_for_raster()
-        plt.eventplot(data)
+        if colors:
+            plt.eventplot(data.tolist(), colors=colors)
+        else:
+            plt.eventplot(data)
         plt.xlabel('time, ms')
         plt.ylabel('neurons')
         plt.show()

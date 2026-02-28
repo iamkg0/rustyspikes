@@ -162,6 +162,11 @@ class Delayed_synapse(Synapse):
         self.post_spiked_moment = 0
         self.d_lr = kwargs.get('d_lr', 1)
 
+        self.inhibitory = kwargs.get('inhibitory', False)
+        if self.inhibitory == False:
+            self.effect = 1
+        else:
+            self.effect = -1
         
         self.max_delay -= 1
         # Debug:
@@ -178,7 +183,8 @@ class Delayed_synapse(Synapse):
         # self.pre_spiked.pop(0)
         self.pre_impulse_queue.append(self.presynaptic.get_output_current())
         self.pre_spiked.append(self.presynaptic.get_spike_status())
-        self.postsynaptic.accumulate_current(self.pre_impulse_queue[int(self.max_delay - self.delay)] * self.w * self.scale)
+
+        self.postsynaptic.accumulate_current(self.pre_impulse_queue[int(self.max_delay - self.delay)] * self.w * self.scale * self.effect)
         # self.post_impulse_queue.pop(0)
         self.post_impulse_queue.append(self.postsynaptic.get_output_current())
 
