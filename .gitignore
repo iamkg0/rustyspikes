@@ -5,6 +5,7 @@ backup
 pics
 Prototype/notes
 Prototype/models
+Prototype/backups
 *.ipynb
 *.html
 *.eps

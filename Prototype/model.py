@@ -31,6 +31,17 @@ class SNNModel:
         self.distance_matrix = None
 
         self.note = ''
+        self.name = 'unnamed_model'
+        self.version = 0
+        self.extension = '.rspks'
+        self.backup_dir = 'backups'
+        self.backup_iters = kwargs.get('backup_iters', None)
+        # self.obj to group whatever the model possesses
+        self.obj0 = []
+        self.obj1 = []
+        self.obj2 = []
+
+        self.timer = 0
 
         '''
         Get info:
@@ -288,6 +299,13 @@ class SNNModel:
             self.neurons[i].apply_cum_current()
         for j in self.syn_by_edge:
             self.syn_by_edge[j].forward(freeze_delays)
+        if self.backup_iters:
+            if self.timer >= self.backup_iters:
+                self.backup()
+                self.timer = 0
+            else:
+                self.timer += 1
+        
 
     def add_neuron(self, neuron, id=None):
         '''
@@ -416,6 +434,35 @@ class SNNModel:
     '''
     Misc:
     '''
+    def rename_model(self, name=''):
+        '''
+        Renames the model
+        '''
+        self.name = name
+
+    def get_name(self):
+        '''
+        Returns the name of the model
+        '''
+        return self.name + '__' + str(self.version) + self.extension
+    
+    def get_model_version(self):
+        '''
+        Returns the version of the model
+        '''
+        return str(self.version)
+
+    def update_version(self):
+        '''
+        Does +1 to self.version
+        '''
+        self.version += 1
+
+    def backup(self):
+        save_model(self, self.backup_dir + '/' + self.get_name())
+        self.update_version()
+        
+
     def change_note(self, note=''):
         '''
         Adds note, str
@@ -595,7 +642,9 @@ class SNNModel:
                     dists[i,j] = self.find_distance(i, j)
         # dists = dists.T
         self.distance_matrix = dists
-        return dists
+        if type(dists) is not np.ndarray:
+            self.distance_matrix = np.array(dists)
+        return self.distance_matrix
     
     def find_n_nearest(self, id, n):
         variants = self.distance_matrix[id]
@@ -612,10 +661,15 @@ class SNNModel:
     '''
     Generate network
     '''
-    def generate_network_local_connections(self, num_exc, num_inh, num_syn, coords_dim=1000, max_delay=500, starting_delay=(100,300)):
+    def generate_network_local_connections(self, num_exc, num_inh, num_syn, coords_dim=1000, max_delay=500,
+                                           starting_delay=(100,300), b=7.6, strict=True, max_inputs=7):
         num_neu = num_exc+num_inh
         for i in range(num_neu):
-            neu = Izhikevich(xy = np.random.randint(0, coords_dim, size=2).tolist())
+            if i > num_exc:
+                color = 'blue'
+            else:
+                color = 'cyan'
+            neu = Izhikevich(xy = np.random.randint(0, coords_dim, size=2).tolist(), color=color)
             self.add_neuron(neu)
         dists = self.create_distance_matrix()
         probs = np.ones_like(dists) - dists / np.sum(dists)
@@ -628,16 +682,64 @@ class SNNModel:
             if self.get_presyn_neurons_ids(presyn_idx):
                 for i in range(len(self.get_presyn_neurons_ids(presyn_idx))):
                     to_exclude.append(self.get_presyn_neurons_ids(presyn_idx)[i])
+            for i in self.neurons.keys(): #max inputs
+                if len(self.get_presyn_neurons_ids(i)) >= max_inputs and i not in to_exclude:
+                    to_exclude.append(i)
             prob_connections = probs[presyn_idx]
             prob_connections[to_exclude]=0
             prob_connections = np.exp(prob_connections) / np.sum(np.exp(prob_connections))
-            # to_connect = np.random.choice(np.arange(len(prob_connections)), size=num_syn, p=prob_connections)
-            to_connect = np.argsort(prob_connections)[::-1][:num_syn]
+            if strict:
+                to_connect = np.argsort(prob_connections)[::-1][:num_syn]
+            else:
+                to_connect = np.random.choice(np.arange(len(prob_connections)), size=num_syn, p=prob_connections)
+            for post_syn in to_connect.tolist():
+                synapse = Delayed_synapse(self.neurons[presyn_idx], self.neurons[post_syn], inhibitory=syn_type, max_delay=max_delay, delay=random.randint(*starting_delay), b=b)
+                self.add_synapse(synapse)
+        self.add_note(f'Num excitatory: {num_exc}\bNum inhibitory: {num_inh}\bNum of output synapses: {num_syn}\bMax input synapses: {max_inputs}\bSynapses are delayed\bInitial delay ranges: {starting_delay}\bMax delay: {max_delay}\bS: {b}\bConnection rule is {'strict' if strict else 'randomized'}')
+        self.name = f'local_e{num_exc}i{num_inh}s{num_syn}ms{max_inputs}svalue{b}md{max_delay}slr'
+        self.reload_graph()
+    
+    
+    def generate_network_local_connections_no_delays(self, num_exc, num_inh, num_syn, coords_dim=1000,
+                                                     strict=True, weights=(1,1), max_inputs=7):
+        num_neu = num_exc+num_inh
+        for i in range(num_neu):
+            if i > num_exc:
+                color = 'blue'
+            else:
+                color = 'cyan'
+            neu = Izhikevich(xy = np.random.randint(0, coords_dim, size=2).tolist(), color=color)
+            self.add_neuron(neu)
+        dists = self.create_distance_matrix()
+        probs = np.ones_like(dists) - dists / np.sum(dists)
+        for presyn_idx in range(num_neu):
+            if presyn_idx < num_exc:
+                syn_type = False
+            else:
+                syn_type = True
+            to_exclude = [presyn_idx]
+            if self.get_presyn_neurons_ids(presyn_idx):
+                for i in range(len(self.get_presyn_neurons_ids(presyn_idx))):
+                    to_exclude.append(self.get_presyn_neurons_ids(presyn_idx)[i])
+            for i in self.neurons.keys(): #max inputs
+                if len(self.get_presyn_neurons_ids(i)) >= max_inputs and i not in to_exclude:
+                    to_exclude.append(i)
+            prob_connections = probs[presyn_idx]
+            prob_connections[to_exclude]=0
+            prob_connections = np.exp(prob_connections) / np.sum(np.exp(prob_connections))
+            if strict:
+                to_connect = np.argsort(prob_connections)[::-1][:num_syn]
+            else:
+                to_connect = np.random.choice(np.arange(len(prob_connections)), size=num_syn, p=prob_connections)
             # print(prob_connections, to_connect)
             for post_syn in to_connect.tolist():
-                synapse = Delayed_synapse(self.neurons[presyn_idx], self.neurons[post_syn], inhibitory=syn_type, max_delay=max_delay, delay=random.randint(*starting_delay))
+                synapse = Synapse(self.neurons[presyn_idx], self.neurons[post_syn], inhibitory=syn_type, w=random.uniform(*weights))
                 self.add_synapse(synapse)
+        self.add_note(f'Num excitatory: {num_exc}\bNum inhibitory: {num_inh}\bNum of output synapses: {num_syn}\bMax input synapses: {max_inputs}\bSynapses not delayed\bInitial weight ranges: {weights}\bConnection rule is {'strict' if strict else 'randomized'}')
+        self.name = f'local_e{num_exc}i{num_inh}s{num_syn}ms{max_inputs}stdp'
         self.reload_graph()
+
+    
         
 
             

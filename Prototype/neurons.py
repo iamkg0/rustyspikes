@@ -27,6 +27,7 @@ class Neuron:
         self.coords = kwargs.get('xy', (0,0))
 
         self.strdp_impulse = 0
+        self.color = kwargs.get('color', 'cyan')
 
     '''
     Synaptic output related functions:
