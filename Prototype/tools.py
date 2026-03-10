@@ -2,7 +2,6 @@ import numpy as np
 import os
 import csv
 import pandas as pd
-print('git_test')
 
 # LMAO:
 import math
