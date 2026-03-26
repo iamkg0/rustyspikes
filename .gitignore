@@ -12,6 +12,8 @@ Prototype/backups
 *.png
 *.txt
 *.csv
+*.xml
+*.iml
 # Prototype
 
 # Paper specific
