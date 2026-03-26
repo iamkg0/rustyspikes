@@ -1,10 +1,11 @@
 import numpy as np
 from collections import deque
+from neurons import *
 
 class Synapse:
     def __init__(self, presynaptic, postsynaptic, **kwargs):
         self.inhibitory = kwargs.get('inhibitory', False)
-        self.resolution = .1 #TEMPORAL FIX
+        self.resolution = res
         self.presynaptic = presynaptic
         self.postsynaptic = postsynaptic
         self.scale = kwargs.get('scale', 1)

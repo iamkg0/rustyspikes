@@ -20,7 +20,7 @@ def load_model(path):
     with open(path, 'rb') as loading:
         model = pkl.load(loading)
         print('Loaded the following model:')
-        print(model.show_config())
+        print(model.get_name())
     return model
 
 def clone_model(model):

@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from utils import *
-res = .1
+from settings import *
 
 ''' SHORTCUTS '''
 def short_single_synapse(pre_neu, post_neu, synapse, time, res=.1, rule=None, fwidth=16, fheight=9):
@@ -104,7 +104,7 @@ class Gatherer:
         return self.pre_vs[timings], self.pre_impulses[timings], self.pre_Is[timings], self.post_vs[timings], self.post_impulses[timings], self.post_Is[timings], self.ws[timings]
     
 
-    def draw_raster(self, time, fheight=5, fwidth=25, dpi=200, notify=True, colors=None):
+    def draw_raster(self, time, fheight=5, fwidth=25, dpi=200, notify=True, colors=None, grid=False):
         '''
         Colors dont work, you shouldnt use it yet
         '''
@@ -114,7 +114,7 @@ class Gatherer:
         fig.set_figwidth(fwidth)
         fig.set_figheight(fheight)
         fig.set_dpi(dpi)
-        plt.grid(True)
+        plt.grid(grid)
         ax.set_yticks(np.arange(0, self.model.num_neurons()))
         plt.ylim(-1, self.model.num_neurons())
         plt.xlim(-1, time+1)

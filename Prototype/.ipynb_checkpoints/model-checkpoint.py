@@ -299,12 +299,12 @@ class SNNModel:
             self.neurons[i].apply_cum_current()
         for j in self.syn_by_edge:
             self.syn_by_edge[j].forward(freeze_delays)
-        # if self.backup_iters:
-        #     if self.timer >= self.backup_iters:
-        #         self.backup()
-        #         self.timer = 0
-        #     else:
-        #         self.timer += 1
+        if self.backup_iters:
+            if self.timer >= self.backup_iters:
+                self.backup()
+                self.timer = 0
+            else:
+                self.timer += 1
         
 
     def add_neuron(self, neuron, id=None):

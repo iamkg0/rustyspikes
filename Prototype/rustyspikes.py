@@ -6,5 +6,4 @@ from protocols import *
 from shallow_models import *
 from vis_functions import *
 from tools import *
-
-res = .1
+from settings import *

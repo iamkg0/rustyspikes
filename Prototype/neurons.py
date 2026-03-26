@@ -1,10 +1,10 @@
 import random
-import numpy as np
-
+# import numpy as np
+from settings import *
 
 class Neuron:
     def __init__(self, **kwargs):
-        self.resolution = kwargs.get('resolution', .1)
+        self.resolution = res
         self.noise = kwargs.get('noise', 0)
         self.tau = kwargs.get('tau', 10)
         self.syn_out = kwargs.get('syn_out', True)
